@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: shepot-apk
-          path: shepot.apk
+          path: android/shepot.apk
 
       - name: Publish release
         if: success()
@@ -42,8 +42,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
+          gh release delete debug-log --yes --cleanup-tag > /dev/null 2>&1 || true
           TAG="v0.1.${GITHUB_RUN_NUMBER}"
-          gh release create "$TAG" "shepot.apk#Шёпот (Android APK)" \
+          gh release create "$TAG" "android/shepot.apk#Шёпот (Android APK)" \
             --title "Шёпот $TAG — Android APK" \
             --notes "Анонимный SMS-мессенджер для Android. Автосборка из ветки \`${GITHUB_REF_NAME}\` (коммит ${GITHUB_SHA::7}).
 
