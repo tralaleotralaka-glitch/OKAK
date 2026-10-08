@@ -45,7 +45,7 @@ public class Store {
         return s;
     }
 
-    private static String readFile() throws IOException {
+    private String readFile() throws IOException {
         InputStream in = new FileInputStream(file);
         java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
         byte[] chunk = new byte[8192];

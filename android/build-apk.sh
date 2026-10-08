@@ -5,8 +5,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-BT="$(ls -d "$SDK"/build-tools/* 2>/dev/null | sort -V | tail -1)"
-PLATDIR="$(ls -d "$SDK"/platforms/android-* 2>/dev/null | sort -V | tail -1)"
+# закреплённые версии (ставятся в workflow), иначе — самые свежие доступные
+BT="$SDK/build-tools/34.0.0"
+[ -d "$BT" ] || BT="$(ls -d "$SDK"/build-tools/* 2>/dev/null | sort -V | tail -1)"
+PLATDIR="$SDK/platforms/android-34"
+[ -d "$PLATDIR" ] || PLATDIR="$(ls -d "$SDK"/platforms/android-* 2>/dev/null | sort -V | tail -1)"
 [ -n "$BT" ] && [ -n "$PLATDIR" ] || { echo "Android SDK не найден (ANDROID_HOME=$SDK)"; exit 1; }
 JAR="$PLATDIR/android.jar"
 echo "build-tools: $BT"
