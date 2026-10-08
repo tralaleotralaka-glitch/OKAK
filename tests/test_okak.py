@@ -107,16 +107,26 @@ class KnowledgeTests(unittest.TestCase):
         self.assertIn("ДНК", self.kb.search("Что такое ДНК").answer)
         self.assertIn("Война и мир", self.kb.search("кто написал войну и мир").answer)
 
+    def test_expanded_knowledge(self):
+        self.assertIn("Онегин", self.kb.search("кто написал Евгения Онегина").answer)
+        self.assertIn("Гоголь", self.kb.search("Кто автор Мёртвых душ?").answer)
+        self.assertIn("Марс", self.kb.search("расскажи про Марс").answer)
+        self.assertIsNone(self.kb.search("что такое Марсель"))  # не должен путаться с Марсом
+        self.assertIn("Млечный", self.kb.search("сколько звёзд в Млечном пути").answer)
+        self.assertIn("Гепард", self.kb.search("самое быстрое животное?").answer)
+
     def test_unknown(self):
         self.assertIsNone(self.kb.search("кто изобрел велосипед в каменном веке"))
 
     def test_capitals(self):
         self.assertEqual(answer_capital("столица Франции"), "Столица Франции — Париж.")
         self.assertEqual(answer_capital("Какая столица Турции?"), "Столица Турции — Анкара.")
+        self.assertEqual(answer_capital("столица Китая"), "Столица Китая — Пекин.")
+        self.assertEqual(answer_capital("столица Кубы"), "Столица Кубы — Гавана.")
         self.assertIsNone(answer_capital("столица"))
 
     def test_kb_is_populated(self):
-        self.assertGreaterEqual(len(self.kb.entries), 60)
+        self.assertGreaterEqual(len(self.kb.entries), 150)
         for entry in self.kb.entries:
             self.assertTrue(entry["keywords"] and entry["answer"], entry)
 
