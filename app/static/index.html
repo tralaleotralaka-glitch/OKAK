@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шёпот — анонимный SMS-мессенджер</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%BB%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-icon">👻</span>
+    <div>
+      <div class="brand-name">Шёпот</div>
+      <div class="brand-sub">анонимный SMS-мессенджер</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="chat">Диалоги</button>
+    <button class="tab" data-tab="phone">Телефон получателя</button>
+  </nav>
+  <div class="mode-badge" id="modeBadge" title="Активный SMS-провайдер">…</div>
+</header>
+
+<main>
+
+  <!-- ================= ВКЛАДКА: МЕССЕНДЖЕР ================= -->
+  <section class="view active" id="view-chat">
+    <aside class="sidebar" id="sidebar">
+      <div class="new-chat">
+        <label for="newPhone">Новый диалог</label>
+        <div class="new-chat-row">
+          <input id="newPhone" type="tel" autocomplete="off" spellcheck="false"
+                 placeholder="+7 999 123-45-67">
+          <button id="newChatBtn" class="btn btn-accent" title="Начать диалог">→</button>
+        </div>
+        <div class="hint">Получатель увидит обычное SMS с номера сервиса — ваш номер скрыт.</div>
+      </div>
+      <div class="thread-list" id="threadList"></div>
+      <div class="sidebar-foot">
+        🚫 Запрещены спам, угрозы и травля. Соблюдайте закон.
+      </div>
+    </aside>
+
+    <section class="chat" id="chatPane">
+      <div class="chat-empty" id="chatEmpty">
+        <div class="chat-empty-icon">👻</div>
+        <h2>Никто не увидит ваш номер</h2>
+        <p>Введите номер телефона получателя слева и напишите сообщение —<br>
+           оно придёт ему обычной SMS-кой, анонимно.</p>
+      </div>
+
+      <div class="chat-active hidden" id="chatActive">
+        <div class="chat-head">
+          <button class="btn-back" id="backBtn" title="К списку">‹</button>
+          <div class="chat-head-info">
+            <div class="chat-phone" id="chatPhone">—</div>
+            <div class="chat-note" id="chatNote">анонимная переписка</div>
+          </div>
+          <div class="chat-live" id="chatLive"><span class="dot"></span>онлайн</div>
+        </div>
+
+        <div class="messages" id="messages"></div>
+
+        <div class="composer">
+          <div class="composer-row">
+            <textarea id="msgInput" rows="1" maxlength="1000"
+                      placeholder="Ваше анонимное сообщение…"></textarea>
+            <button id="sendBtn" class="btn btn-send" title="Отправить (Enter)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 11.5L21 3l-8.5 18-2.3-7.2L3 11.5z"
+                      fill="currentColor" stroke="currentColor" stroke-width="1"
+                      stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="composer-meta"><span id="segInfo">0 симв · 1 SMS</span></div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ================= ВКЛАДКА: ТЕЛЕФОН ПОЛУЧАТЕЛЯ (ДЕМО) ================= -->
+  <section class="view" id="view-phone">
+    <div class="phone-wrap">
+      <div class="demo-note hidden" id="demoNote">
+        Доступно только в демо-режиме: здесь показано, что видит получатель.
+      </div>
+      <div class="phone-controls">
+        <input id="demoPhone" type="tel" placeholder="Номер получателя, напр. +7 999 123-45-67">
+        <button id="demoLoadBtn" class="btn btn-accent">Показать SMS</button>
+      </div>
+
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-head">
+            <div class="phone-ava">👻</div>
+            <div>
+              <div class="phone-title">Шёпот</div>
+              <div class="phone-num" id="phoneNum">анонимный сервис</div>
+            </div>
+          </div>
+          <div class="phone-msgs" id="phoneMsgs">
+            <div class="phone-placeholder">
+              Здесь появятся SMS,<br>отправленные на этот номер
+            </div>
+          </div>
+          <div class="phone-reply">
+            <textarea id="demoReply" rows="1" placeholder="Ответить как получатель…"></textarea>
+            <button id="demoReplyBtn" class="btn btn-reply">➤</button>
+          </div>
+        </div>
+        <div class="phone-homebar"></div>
+      </div>
+      <div class="demo-hint">Ответ получателя появится в вашем диалоге на вкладке «Диалоги».</div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toasts" id="toasts"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

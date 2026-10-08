@@ -1,0 +1,13 @@
+# секреты
+.env
+
+# данные
+var/
+*.db
+*.db-wal
+*.db-shm
+
+# системное
+__pycache__/
+*.pyc
+.venv/
