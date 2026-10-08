@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- призрак -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,26 C66,26 74,35 74,47 L74,72.25 L72.75,71 L65,78 L57.25,71 L49.5,78 L41.75,71 L34,78 L34,47 C34,35 42,26 54,26 Z" />
+    <!-- глаза -->
+    <path
+        android:fillColor="#7C5CFF"
+        android:pathData="M47,44 m-3.5,0 a3.5,3.5 0 1,1 7,0 a3.5,3.5 0 1,1 -7,0" />
+    <path
+        android:fillColor="#7C5CFF"
+        android:pathData="M61,44 m-3.5,0 a3.5,3.5 0 1,1 7,0 a3.5,3.5 0 1,1 -7,0" />
+</vector>

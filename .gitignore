@@ -7,6 +7,11 @@ var/
 *.db-wal
 *.db-shm
 
+# сборка APK
+shepot.apk
+android/build-apk/
+android/assets/
+
 # системное
 __pycache__/
 *.pyc

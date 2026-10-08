@@ -1,0 +1,50 @@
+name: Build APK
+
+on:
+  push:
+    branches: [arena/df5a70f1-okak]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+
+      - name: Build APK
+        run: bash android/build-apk.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shepot-apk
+          path: shepot.apk
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG="v0.1.${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" "shepot.apk#Шёпот (Android APK)" \
+            --title "Шёпот $TAG — Android APK" \
+            --notes "Анонимный SMS-мессенджер для Android. Автосборка из ветки \`${GITHUB_REF_NAME}\` (коммит ${GITHUB_SHA::7}).
+
+          Прямая ссылка: \`https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/shepot.apk\`
+
+          При установке разрешите установку из неизвестных источников. В настройках приложения выберите провайдера (демо / Twilio / SMS.ru)." \
+            --target "$GITHUB_SHA"
+          echo "RELEASE_URL=https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}" >> "$GITHUB_OUTPUT"

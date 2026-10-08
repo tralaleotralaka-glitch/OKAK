@@ -12,8 +12,31 @@ const state = {
   tab: "chat",
 };
 
-/* ---------- API ---------- */
+/* ---------- транспорт: браузер (fetch) или Android-мост (ShepotBridge) ---------- */
+const Native = (typeof window !== "undefined") ? window.ShepotBridge : null;
+let _bSeq = 0;
+const _bCbs = new Map();
+
+window._shepotCb = function (id, status, text) {
+  const cb = _bCbs.get(id);
+  if (!cb) return;
+  _bCbs.delete(id);
+  let data = null;
+  try { data = JSON.parse(text); } catch (_) { /* пустое тело */ }
+  if (status >= 400) cb.reject(new Error((data && data.error) || ("Ошибка " + status)));
+  else cb.resolve(data || {});
+};
+
 async function api(path, opts = {}) {
+  if (Native) {
+    return new Promise((resolve, reject) => {
+      const id = ++_bSeq;
+      _bCbs.set(id, { resolve, reject });
+      Native.call(String(id), path,
+        opts.body ? JSON.stringify(opts.body) : "",
+        opts.method || (opts.body ? "POST" : "GET"));
+    });
+  }
   const res = await fetch(path, {
     headers: { "Content-Type": "application/json" },
     ...opts,
@@ -66,11 +89,20 @@ function smsInfo(text) {
 /* ---------- конфиг ---------- */
 async function loadConfig() {
   state.cfg = await api("/api/config");
+  const mi = document.getElementById("msgInput");
+  if (mi) mi.maxLength = state.cfg.max_len || 1000;
+
+  if (state.cfg.native) {
+    const tab = document.getElementById("settingsTab");
+    if (tab) tab.style.display = "";
+    fillSettings();
+  }
+
   const b = $("#modeBadge");
   if (state.cfg.demo) {
     b.textContent = "демо-режим";
     b.className = "mode-badge demo";
-    b.title = "SMS не отправляются по-настоящему. Подключите Twilio или SMS.ru в .env";
+    b.title = "SMS не отправляются по-настоящему. Подключите Twilio или SMS.ru в настройках/.env";
   } else {
     b.textContent = "SMS: " + state.cfg.provider;
     b.className = "mode-badge live";
@@ -78,6 +110,41 @@ async function loadConfig() {
     $("#demoNote").classList.add("hidden");
     // симулятор телефона актуален только в демо-режиме
     document.querySelector('[data-tab="phone"]').style.display = "none";
+  }
+}
+
+/* ---------- настройки (Android) ---------- */
+function fillSettings() {
+  const s = state.cfg.settings || {};
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+  set("setProvider", s.provider || "demo");
+  set("setSignature", s.signature || "");
+  set("setTwilioSid", s.twilio_sid || "");
+  set("setTwilioToken", s.twilio_token || "");
+  set("setTwilioFrom", s.twilio_from || "");
+  set("setSmsruId", s.smsru_api_id || "");
+  setChk("setSmsruTest", s.smsru_test === "1" || s.smsru_test === true);
+}
+
+async function saveSettings() {
+  const val = (id) => (document.getElementById(id) || {}).value || "";
+  const body = {
+    provider: val("setProvider") || "demo",
+    signature: val("setSignature").trim(),
+    twilio_sid: val("setTwilioSid").trim(),
+    twilio_token: val("setTwilioToken").trim(),
+    twilio_from: val("setTwilioFrom").trim(),
+    smsru_api_id: val("setSmsruId").trim(),
+    smsru_test: document.getElementById("setSmsruTest") &&
+                document.getElementById("setSmsruTest").checked ? "1" : "0",
+  };
+  try {
+    await api("/api/settings", { method: "POST", body });
+    toast("Настройки сохранены");
+    await loadConfig();
+  } catch (e) {
+    toast(e.message, true);
   }
 }
 
@@ -142,6 +209,9 @@ async function openThread(id) {
 async function loadMessages(scroll = false) {
   if (!state.current) return;
   const data = await api(`/api/threads/${state.current.id}/messages`);
+  const sig = data.messages.map((m) => m.id + ":" + m.status).join(",");
+  if (sig === state._sig) return; // ничего не изменилось — не перерисовываем
+  state._sig = sig;
   state.messages = data.messages;
   renderMessages(scroll);
 }
@@ -343,6 +413,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#backBtn").addEventListener("click", () => {
     $("#sidebar") && $("#sidebar").classList.add("show");
   });
+
+  const setSave = document.getElementById("setSave");
+  if (setSave) setSave.addEventListener("click", saveSettings);
 
   loadThreads();
   setInterval(poll, 2500);

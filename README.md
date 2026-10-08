@@ -30,7 +30,26 @@
 
 Режим и ключи задаются в файле `.env` (см. `.env.example`).
 
-## Быстрый старт
+## Android-приложение (APK)
+
+Тот же мессенджер, упакованный в нативное Android-приложение (WebView + локальная логика,
+без сервера). Сборка происходит автоматически через GitHub Actions при каждом пуше в ветку.
+
+**Скачать APK:**
+```
+https://github.com/tralaleotralaka-glitch/OKAK/releases/latest/download/shepot.apk
+```
+(страница релизов: `Releases` в репозитории)
+
+При установке разрешите установку из неизвестных источников. В приложении есть вкладка
+**«Настройки»**: выбор провайдера (демо / Twilio / SMS.ru) и ключей — они хранятся только
+на устройстве. SMS отправляется через API провайдера с номера сервиса.
+
+Исходники приложения: `android/` (Java, без зависимостей), сборка: `android/build-apk.sh`
+(aapt → javac → d8 → zipalign → apksigner), workflow: `.github/workflows/build-apk.yml`.
+Ключ подписи: `android/signing/shepot.p12` (пароль `shepot2026`, только для отладочных сборок).
+
+## Быстрый старт (веб-версия)
 
 ```bash
 ./run.sh          # или: cd app && python3 server.py

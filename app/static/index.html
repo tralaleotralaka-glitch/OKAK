@@ -20,6 +20,7 @@
   <nav class="tabs" id="tabs">
     <button class="tab active" data-tab="chat">Диалоги</button>
     <button class="tab" data-tab="phone">Телефон получателя</button>
+    <button class="tab" data-tab="settings" id="settingsTab" style="display:none">Настройки</button>
   </nav>
   <div class="mode-badge" id="modeBadge" title="Активный SMS-провайдер">…</div>
 </header>
@@ -116,6 +117,53 @@
         <div class="phone-homebar"></div>
       </div>
       <div class="demo-hint">Ответ получателя появится в вашем диалоге на вкладке «Диалоги».</div>
+    </div>
+  </section>
+
+  <!-- ================= ВКЛАДКА: НАСТРОЙКИ (ТОЛЬКО В ПРИЛОЖЕНИИ) ================= -->
+  <section class="view" id="view-settings">
+    <div class="settings-wrap">
+      <h2>Настройки отправки SMS</h2>
+      <p class="settings-note">Ключи хранятся только на этом устройстве. SMS уходит через API
+        провайдера с номера сервиса — ваш номер остаётся скрытым.</p>
+
+      <label class="set-field">Провайдер
+        <select id="setProvider">
+          <option value="demo">Демо (без реальной отправки)</option>
+          <option value="twilio">Twilio</option>
+          <option value="smsru">SMS.ru</option>
+        </select>
+      </label>
+
+      <label class="set-field">Подпись в конце SMS (необязательно)
+        <input id="setSignature" type="text" placeholder="— Анонимно через «Шёпот»">
+      </label>
+
+      <fieldset class="set-group">
+        <legend>Twilio</legend>
+        <label class="set-field">Account SID
+          <input id="setTwilioSid" type="text" placeholder="ACxxxxxxxx..." autocomplete="off">
+        </label>
+        <label class="set-field">Auth Token
+          <input id="setTwilioToken" type="password" placeholder="ваш токен" autocomplete="off">
+        </label>
+        <label class="set-field">Номер отправителя
+          <input id="setTwilioFrom" type="text" placeholder="+15005550006" autocomplete="off">
+        </label>
+      </fieldset>
+
+      <fieldset class="set-group">
+        <legend>SMS.ru</legend>
+        <label class="set-field">API_ID
+          <input id="setSmsruId" type="password" placeholder="ваш API_ID" autocomplete="off">
+        </label>
+        <label class="set-check">
+          <input id="setSmsruTest" type="checkbox">
+          тестовый режим (бесплатно, без реальной отправки)
+        </label>
+      </fieldset>
+
+      <button id="setSave" class="btn btn-accent">Сохранить</button>
     </div>
   </section>
 
