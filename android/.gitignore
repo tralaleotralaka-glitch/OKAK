@@ -1,0 +1,21 @@
+# Сборка и кэши Gradle
+.gradle/
+build/
+app/build/
+.cxx/
+captures/
+*.apk
+*.aab
+
+# Локальные настройки (sdk.dir и пр.) — не коммитим
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Ключи и секреты: не коммитим
+*.jks
+*.keystore
+keystore.properties
+secrets.properties

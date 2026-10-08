@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OKAK</string>
+    <string name="app_subtitle">Умный русскоязычный ассистент</string>
+    <string name="input_hint">Спросите что-нибудь…</string>
+    <string name="send">Отправить</string>
+    <string name="settings">Настройки</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_key_label">Ключ Gemini API</string>
+    <string name="settings_key_help">Бесплатный ключ берётся в Google AI Studio. Он хранится в зашифрованном виде на этом устройстве и не передаётся никуда, кроме Google Gemini. Без ключа работает локальный режим.</string>
+    <string name="settings_save">Сохранить</string>
+    <string name="settings_remove">Удалить ключ</string>
+    <string name="settings_close">Закрыть</string>
+    <string name="mode_ai">Режим: AI (Gemini)</string>
+    <string name="mode_local">Режим: локальный</string>
+    <string name="thinking">Думаю…</string>
+    <string name="welcome">Привет! Я OKAK. Знаю время и дату, считаю математику, рассказываю о науке, истории и географии. Напишите вопрос или выберите подсказку ниже.</string>
+    <string name="clear_chat">Очистить</string>
+    <string name="key_saved">Ключ сохранён</string>
+    <string name="key_removed">Ключ удалён</string>
+    <string name="key_store_unavailable">Хранилище ключей недоступно на этом устройстве</string>
+</resources>
