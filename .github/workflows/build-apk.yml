@@ -25,15 +25,19 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0" > /dev/null
 
       - name: Build APK
-        run: bash android/build-apk.sh
+        run: |
+          set -o pipefail
+          bash -x android/build-apk.sh 2>&1 | tee build.log
 
       - name: Upload artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: shepot-apk
           path: shepot.apk
 
       - name: Publish release
+        if: success()
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -47,4 +51,14 @@ jobs:
 
           При установке разрешите установку из неизвестных источников. В настройках приложения выберите провайдера (демо / Twilio / SMS.ru)." \
             --target "$GITHUB_SHA"
-          echo "RELEASE_URL=https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Debug log (on failure)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete debug-log --yes --cleanup-tag > /dev/null 2>&1 || true
+          gh release create debug-log "build.log#лог сборки (ошибка)" \
+            --title "Лог неудачной сборки" --notes "Диагностика упавшей сборки APK." \
+            --target "$GITHUB_SHA" || gh release upload debug-log build.log --clobber
