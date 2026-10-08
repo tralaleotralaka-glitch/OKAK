@@ -9,4 +9,12 @@ data class Reply(
     val intent: String,
     val source: String,
     val elapsedMs: Long = 0L,
+    /** Короткая пояснительная приписка под ответом, например причина сбоя Gemini. */
+    val note: String = "",
 )
+
+/** Результат запроса к модели: либо текст, либо понятная причина сбоя. */
+sealed class LlmResult {
+    data class Ok(val text: String) : LlmResult()
+    data class Failed(val reason: String) : LlmResult()
+}

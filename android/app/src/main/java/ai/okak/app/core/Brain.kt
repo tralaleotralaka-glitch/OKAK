@@ -31,16 +31,21 @@ class Brain(private val knowledge: KnowledgeBase) {
             else -> return local.withElapsed(started)
         }
 
-        if (llm != null) {
-            val remaining = BUDGET_MS - elapsedMs(started)
-            val timeout = minOf(LLM_TIMEOUT_MS, remaining - 200)
-            if (timeout >= 1000) {
-                val answer = llm.ask(msg, history, nowText(), timeout)
-                if (answer != null) return Reply(answer, "llm", "llm", elapsedMs(started))
-            }
+        if (llm == null) {
+            return Reply("$FALLBACK $KEY_HINT", "fallback", "local", elapsedMs(started))
         }
-        val text = if (llm == null) "$FALLBACK $KEY_HINT" else FALLBACK
-        return Reply(text, "fallback", "local", elapsedMs(started))
+        val remaining = BUDGET_MS - elapsedMs(started)
+        val timeout = minOf(LLM_TIMEOUT_MS, remaining - 200)
+        if (timeout < 1000) {
+            return Reply(FALLBACK, "fallback", "local", elapsedMs(started), note = "Gemini: нет времени на запрос")
+        }
+        return when (val result = llm.ask(msg, history, nowText(), timeout)) {
+            is LlmResult.Ok -> Reply(result.text, "llm", "llm", elapsedMs(started))
+            is LlmResult.Failed -> Reply(
+                FALLBACK, "fallback", "local", elapsedMs(started),
+                note = "Gemini: ${result.reason}",
+            )
+        }
     }
 
     private fun routeLocal(msg: String): Reply {
