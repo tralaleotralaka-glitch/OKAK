@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="OKAK — умный русскоязычный ассистент: время, дата, математика, знания." />
+  <meta name="theme-color" content="#0b1020" />
+  <title>OKAK — умный ассистент</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
+  <main class="app">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">O</div>
+        <div>
+          <h1>OKAK</h1>
+          <p class="status"><span id="statusDot" class="dot"></span><span id="statusText">подключение…</span></p>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="clock glass-chip" title="Текущее время сервера">
+          <span id="clock">--:--:--</span>
+          <small id="clockTz"></small>
+        </div>
+        <button id="themeBtn" class="icon-btn" type="button" aria-label="Сменить тему" title="Сменить тему">🌙</button>
+        <button id="clearBtn" class="icon-btn" type="button" aria-label="Очистить чат" title="Очистить чат">🗑️</button>
+      </div>
+    </header>
+
+    <section class="chat glass" aria-label="Диалог">
+      <div id="log" class="log" role="log" aria-live="polite"></div>
+    </section>
+
+    <section class="composer glass">
+      <div id="chips" class="chips" aria-label="Примеры запросов"></div>
+      <form id="form" class="form" autocomplete="off">
+        <textarea id="input" rows="1" maxlength="2000" placeholder="Спросите что угодно: «который час», «корень из 144», «кто такой Пушкин»…" aria-label="Сообщение"></textarea>
+        <button id="sendBtn" class="send" type="submit" aria-label="Отправить">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6l-.02 6.5 12.5 1.9-12.5 1.9z"/></svg>
+        </button>
+      </form>
+      <p class="hint">Enter — отправить, Shift+Enter — новая строка · ответ обычно за доли секунды</p>
+    </section>
+  </main>
+
+  <template id="tplUser">
+    <div class="msg user"><div class="bubble"></div></div>
+  </template>
+  <template id="tplBot">
+    <div class="msg bot">
+      <div class="avatar" aria-hidden="true">O</div>
+      <div class="col">
+        <div class="bubble"></div>
+        <div class="meta"></div>
+      </div>
+    </div>
+  </template>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
