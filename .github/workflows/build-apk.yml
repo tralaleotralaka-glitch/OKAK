@@ -58,7 +58,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
+          {
+            echo "### Лог сборки (tail 50К)"
+            echo '```'
+            tail -c 50000 build.log
+            echo '```'
+          } > notes.md
           gh release delete debug-log --yes --cleanup-tag > /dev/null 2>&1 || true
-          gh release create debug-log "build.log#лог сборки (ошибка)" \
-            --title "Лог неудачной сборки" --notes "Диагностика упавшей сборки APK." \
-            --target "$GITHUB_SHA" || gh release upload debug-log build.log --clobber
+          gh release create debug-log --title "Лог неудачной сборки" \
+            --notes-file notes.md --target "$GITHUB_SHA"
