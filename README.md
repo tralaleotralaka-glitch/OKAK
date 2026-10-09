@@ -13,3 +13,14 @@
 python3 -m http.server 8000
 ```
 Откройте http://localhost:8000 (или просто откройте `index.html`).
+
+## APK для Android
+APK собирается автоматически через GitHub Actions (`.github/workflows/android.yml`) при каждом push.
+
+**Скачать:** вкладка **Actions** → последняя сборка «Build APK» → блок **Artifacts** → `MySENGER-apk` (zip с `MySENGER.apk` внутри).
+После слияния в `main` APK также появляется в **Releases** (тег `latest`).
+
+Установка: откройте `MySENGER.apk` на телефоне и разрешите «Установку из неизвестных источников». Нужен Android 8.0+.
+
+Android-проект лежит в папке `android/` — это WebView-обёртка, которая берёт `index.html`, `styles.css`, `app.js` из корня репозитория.
+Локальная сборка (нужны JDK 17 и Android SDK): `cd android && gradle assembleRelease`.
