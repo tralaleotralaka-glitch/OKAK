@@ -1,0 +1,49 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Веб-файлы мессенджера берутся из корня репозитория — одна копия кода для браузера и APK
+def webAssetsDir = layout.buildDirectory.dir("generated/webassets")
+
+tasks.register('copyWebAssets', Copy) {
+    from(rootProject.projectDir.parentFile) {
+        include 'index.html', 'styles.css', 'app.js'
+    }
+    into webAssetsDir.map { it.dir("www") }
+}
+
+android {
+    namespace 'com.mysenger.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.mysenger.app'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    sourceSets {
+        main.assets.srcDirs += webAssetsDir
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Подписываем отладочным ключом, чтобы APK сразу ставился на телефон
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+preBuild.dependsOn copyWebAssets
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}

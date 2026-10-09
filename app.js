@@ -425,6 +425,16 @@
     if (screen === 'chat' && state.chats[open]) renderMessages();
   });
 
+  /* ---------- Кнопка «Назад» на Android (вызывается из APK) ---------- */
+  // Возвращает true, если нажатие обработано, иначе приложение закроется
+  window.mysengerBack = () => {
+    if (!$('modal-confirm').classList.contains('hidden')) { $('modal-confirm').classList.add('hidden'); return true; }
+    if (!$('modal-add').classList.contains('hidden')) { closeAddModal(); return true; }
+    if (state.ui.screen === 'chat') { $('btn-back-chat').click(); return true; }
+    if (state.ui.screen === 'settings') { $('btn-back-settings').click(); return true; }
+    return false;
+  };
+
   /* ---------- Старт: восстанавливаем, где остановились ---------- */
   applyTheme(state.settings.theme);
   renderMe();
