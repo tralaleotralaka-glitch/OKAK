@@ -276,6 +276,92 @@ async function setupSNICChips() {
   }
 }
 
+// Client-side fallback generator for offline / Android APK usage
+function generateOfflineBundle(protocol, serverIp, port, sni, clientName) {
+  const randHex = (len) => {
+    const bytes = new Uint8Array(Math.ceil(len / 2));
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, len);
+  };
+
+  const randB64Url = (len) => {
+    const bytes = new Uint8Array(len);
+    crypto.getRandomValues(bytes);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  };
+
+  const randB64 = (len) => {
+    const bytes = new Uint8Array(len);
+    crypto.getRandomValues(bytes);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  };
+
+  const uuid = crypto.randomUUID ? crypto.randomUUID() : `${randHex(8)}-${randHex(4)}-4${randHex(3)}-a${randHex(3)}-${randHex(12)}`;
+
+  if (protocol === 'vless-reality') {
+    const pubKey = randB64Url(32);
+    const shortId = randHex(8);
+    const uri = `vless://${uuid}@${serverIp}:${port}?security=reality&encryption=none&pbk=${pubKey}&headerType=none&fp=chrome&spx=%2F&type=tcp&flow=xtls-rprx-vision&sni=${sni}&sid=${shortId}#${encodeURIComponent(clientName)}`;
+
+    return {
+      protocol: 'vless-reality',
+      name: clientName,
+      serverIp,
+      port,
+      sni,
+      clientUri: uri,
+      serverConfigJson: JSON.stringify({
+        log: { loglevel: 'warning' },
+        inbounds: [{
+          port,
+          protocol: 'vless',
+          settings: { clients: [{ id: uuid, flow: 'xtls-rprx-vision' }] },
+          streamSettings: {
+            network: 'tcp',
+            security: 'reality',
+            realitySettings: { dest: `${sni}:443`, serverNames: [sni], shortIds: [shortId] }
+          }
+        }]
+      }, null, 2)
+    };
+  } else if (protocol === 'amneziawg' || protocol === 'wireguard') {
+    const isAmnezia = protocol === 'amneziawg';
+    const cPriv = randB64(32);
+    const sPub = randB64(32);
+    const psk = randB64(32);
+
+    let conf = `# OKAK VPN Client Profile: ${clientName}\n[Interface]\nPrivateKey = ${cPriv}\nAddress = 10.8.0.2/32\nDNS = 1.1.1.1, 1.0.0.1\n`;
+    if (isAmnezia) {
+      conf += `Jc = 4\nJmin = 40\nJmax = 70\nS1 = 15\nS2 = 30\nH1 = 1482947192\nH2 = 1892837419\nH3 = 1029384719\nH4 = 1728391029\n`;
+    }
+    conf += `\n[Peer]\nPublicKey = ${sPub}\nPresharedKey = ${psk}\nEndpoint = ${serverIp}:${port}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n`;
+
+    return {
+      protocol,
+      name: clientName,
+      serverIp,
+      port,
+      clientConfig: conf,
+      serverConfig: `# Server config:\n[Interface]\nAddress = 10.8.0.1/24\nListenPort = ${port}\n`
+    };
+  } else {
+    const key = randB64(16);
+    const uri = `ss://${btoa('2022-blake3-aes-128-gcm:' + key)}@${serverIp}:${port}#${encodeURIComponent(clientName)}`;
+    return {
+      protocol: 'shadowsocks',
+      name: clientName,
+      serverIp,
+      port,
+      clientUri: uri,
+      serverConfigJson: JSON.stringify({ server_port: port, method: '2022-blake3-aes-128-gcm', password: key }, null, 2)
+    };
+  }
+}
+
 // Generate Config
 async function generateConfig() {
   const selectedProtoInput = document.querySelector('input[name="protocol"]:checked');
@@ -286,19 +372,42 @@ async function generateConfig() {
   const clientName = document.getElementById('client-name').value.trim() || 'OKAK-Client';
 
   try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ protocol, serverIp, port, sni, clientName })
-    });
+    let bundle = null;
+    let qrDataUrl = null;
 
-    const data = await response.json();
-    if (!data.success) throw new Error(data.error);
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ protocol, serverIp, port, sni, clientName })
+      });
+      const data = await response.json();
+      if (data && data.success) {
+        bundle = data.bundle;
+        qrDataUrl = data.qrDataUrl;
+      }
+    } catch (netErr) {
+      // Offline fallback
+    }
 
-    currentBundle = data.bundle;
+    if (!bundle) {
+      bundle = generateOfflineBundle(protocol, serverIp, port, sni, clientName);
+    }
+
+    if (!qrDataUrl && typeof qrcode !== 'undefined') {
+      const qrText = bundle.clientUri || bundle.clientConfig;
+      const qr = qrcode(0, 'M');
+      qr.addData(qrText);
+      qr.make();
+      qrDataUrl = qr.createDataURL(4, 4);
+    }
+
+    currentBundle = bundle;
 
     // Update QR Code
-    document.getElementById('qr-image').src = data.qrDataUrl;
+    if (qrDataUrl) {
+      document.getElementById('qr-image').src = qrDataUrl;
+    }
 
     // Update Meta Details
     document.getElementById('res-server-endpoint').textContent = `${serverIp}:${port}`;
@@ -379,10 +488,34 @@ function setupActions() {
   // Copy URI button
   document.getElementById('btn-copy-uri').addEventListener('click', () => {
     const text = document.getElementById('output-text').value;
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('Скопировано в буфер обмена!');
-    });
+    if (window.OkakBridge && window.OkakBridge.copyToClipboard) {
+      window.OkakBridge.copyToClipboard(text);
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Скопировано в буфер обмена!');
+      });
+    }
   });
+
+  // Open in VPN app button
+  const btnOpenVpn = document.getElementById('btn-open-vpn-app');
+  if (btnOpenVpn) {
+    btnOpenVpn.addEventListener('click', () => {
+      if (!currentBundle) return;
+      const target = currentBundle.clientUri || currentBundle.clientConfig;
+      if (window.OkakBridge && window.OkakBridge.openVpnLink) {
+        window.OkakBridge.openVpnLink(target);
+      } else {
+        if (currentBundle.clientUri) {
+          window.location.href = currentBundle.clientUri;
+        } else {
+          navigator.clipboard.writeText(target).then(() => {
+            showToast('Конфигурация скопирована! Вставьте в Amnezia / WireGuard');
+          });
+        }
+      }
+    });
+  }
 
   // Download Config File button
   document.getElementById('btn-download-conf').addEventListener('click', () => {

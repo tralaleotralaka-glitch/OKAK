@@ -1,0 +1,76 @@
+name: Android APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Сборка Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+
+      - name: Build APK
+        run: |
+          set -o pipefail
+          chmod +x android/build-apk.sh
+          bash -x android/build-apk.sh 2>&1 | tee build.log
+
+      - name: Verify APK
+        id: verify
+        run: |
+          APK="android/okak-vpn.apk"
+          test -f "$APK"
+          SIZE=$(stat -c %s "$APK")
+          SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          echo "::notice::APK готов: $SIZE байт, SHA256: $SHA"
+          unzip -l "$APK" | head -25
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: okak-vpn-apk
+          path: android/okak-vpn.apk
+
+      - name: Publish Release with APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="apk-${GITHUB_REF_NAME//\//-}"
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" "android/okak-vpn.apk#OKAK-VPN-debug.apk" \
+            --title "OKAK VPN APK — ${GITHUB_REF_NAME}" \
+            --notes "### 🚀 OKAK VPN — Неблокируемый Anti-DPI VPN для Android
+
+            - **Файл:** \`OKAK-VPN-debug.apk\`
+            - **Размер:** ${{ steps.verify.outputs.size }} байт
+            - **SHA256:** \`${{ steps.verify.outputs.sha256 }}\`
+            - **Коммит:** ${GITHUB_SHA::7}
+
+            #### Инструкция по установке:
+            1. Скачайте файл **OKAK-VPN-debug.apk** на ваш телефон.
+            2. При установке разрешите «Установку из неизвестных источников».
+            3. Запустите приложение: выберите протокол (VLESS Reality или AmneziaWG), нажмите «⚡ Подключить» или скопируйте ссылку в v2rayNG / Amnezia." \
+            --target "${GITHUB_SHA}"

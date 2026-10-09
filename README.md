@@ -70,9 +70,13 @@ npm start
 4. Нажмите **Connect**. Разрешите системе добавить VPN-профиль.
 
 ### 🤖 Android
-1. **Рекомендуемое приложение:** **[v2rayNG](https://github.com/2dust/v2rayNG/releases)** (для VLESS Reality) или **[AmneziaWG Android](https://github.com/amnezia-vpn/amneziawg-android/releases)**.
-2. Нажмите **«+»** в правом верхнем углу -> **«Импорт профиля из QR-кода»** (или «Импорт из буфера»).
-3. Нажмите круглую кнопку подключения внизу экрана.
+1. **Готовое приложение OKAK VPN (APK):**
+   - Скачайте собранный APK из раздела **[Releases](https://github.com/tralaleotralaka-glitch/OKAK/releases)** репозитория (файл `OKAK-VPN-debug.apk`) либо из артефактов GitHub Actions.
+   - Установите на телефон (разрешив установку из неизвестных источников).
+   - Внутри приложения доступны все протоколы (VLESS Reality, AmneziaWG), генератор QR и кнопка **«⚡ Подключить»** в один тап.
+2. **Сторонние клиенты:** **[v2rayNG](https://github.com/2dust/v2rayNG/releases)** (для VLESS Reality) или **[AmneziaWG Android](https://github.com/amnezia-vpn/amneziawg-android/releases)**.
+   - Нажмите **«+»** в правом верхнем углу -> **«Импорт профиля из QR-кода»** (или «Импорт из буфера»).
+   - Нажмите круглую кнопку подключения внизу экрана.
 
 ### 🪟 Windows (10 / 11)
 - **Для VLESS Reality:** Скачайте **[v2rayN](https://github.com/2dust/v2rayN/releases)** (архив `v2rayN-With-Core.zip`).
@@ -128,6 +132,11 @@ npm run generate-keys -- --ip 185.120.45.10 --sni gateway.icloud.com
 
 ```
 OKAK/
+├── .github/workflows/          # Автоматическая сборка APK и релиз в GitHub Actions
+├── android/                    # Android приложение (OKAK VPN APK)
+│   ├── build-apk.sh            # Скрипт быстрой компиляции и подписи APK
+│   ├── AndroidManifest.xml     # Манифест приложения
+│   └── java/vpn/okak/app/      # Нативный мост и WebView активность
 ├── install.sh                  # Однострочный автоустановщик для Ubuntu/Debian VPS
 ├── docker-compose.yml          # Развертывание стека (Xray Reality + AmneziaWG + Manager)
 ├── package.json                # Скрипты и зависимости Node.js
