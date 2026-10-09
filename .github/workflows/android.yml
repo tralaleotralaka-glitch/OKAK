@@ -1,0 +1,72 @@
+name: Android APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Сборка APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Зависимости
+        run: npm ci
+
+      - name: Тесты веб-части
+        run: npm test
+
+      - name: Веб-ассеты в www/ и синхронизация Android-проекта
+        run: npm run sync:android
+
+      - name: Сборка APK (gradlew assembleDebug)
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Проверить, что внутри APK
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          ls -lh "$APK"
+          unzip -l "$APK" | grep -E "assets/public/index.html|assets/public/js/app.js|AndroidManifest.xml"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MySENGER-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Опубликовать APK в релизе
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="apk-${GITHUB_REF_NAME//\//-}"
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" \
+            android/app/build/outputs/apk/debug/app-debug.apk \
+            --title "MySENGER APK — ${GITHUB_REF_NAME}" \
+            --notes "Собрано автоматически из ${GITHUB_SHA}.
+
+            Подпись отладочная (debug keystore), поэтому при установке Android попросит
+            разрешить «Установку из неизвестных источников». Данные мессенджера
+            хранятся в localStorage приложения и не покидают телефон." \
+            --target "${GITHUB_SHA}"

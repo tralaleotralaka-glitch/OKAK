@@ -54,11 +54,53 @@ js/phone.js       номера: маска ввода, валидация, фо�
 js/store.js       состояние и localStorage                          (чистый модуль)
 js/ui.js          отрисовка, экранирование, сжатие аватара в canvas
 js/app.js         связывает всё: события, оверлеи, сохранение
+scripts/          сборка www/ для упаковки в APK
+android/          нативный Android-проект (Capacitor + WebView)
 tests/            тесты на node:test
+.github/workflows автоматическая сборка APK
 ```
 
 `js/phone.js` и `js/store.js` не знают про DOM и не зависят от хранилища —
 оно передаётся параметром, поэтому их можно прогонять в Node.
+
+## APK для Android
+
+Мессенджер упакован в Android-приложение через [Capacitor](https://capacitorjs.com):
+`android/` — нативный проект с WebView, веб-часть кладётся в
+`android/app/src/main/assets/public`.
+
+**Скачать готовый APK:** раздел [Releases](../../releases) — файл
+`app-debug.apk` в релизе `apk-<имя-ветки>` (например `apk-main`).
+Подпись отладочная, поэтому при установке Android попросит разрешить
+«Установку из неизвестных источников».
+
+**Собрать самому** (нужны JDK 21 и Android SDK, например через Android Studio):
+
+```bash
+npm install
+npm run apk        # = build:web → cap sync android → ./gradlew assembleDebug
+# APK появится в android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+`npm run android:open` откроет проект в Android Studio.
+
+**Автоматически.** Каждый `git push` запускает workflow
+[`.github/workflows/android.yml`](.github/workflows/android.yml):
+прогоняет тесты, собирает `www/`, синхронизирует Android-проект,
+выполняет `gradlew assembleDebug`, прикладывает APK к артефактам прогона
+и обновляет релиз `apk-<имя-ветки>`. Прогресс — на вкладке **Actions**.
+
+Полезные команды:
+
+| Команда | Что делает |
+| --- | --- |
+| `npm run build:web` | складывает `index.html`, `css/`, `js/` в `www/` |
+| `npm run sync:android` | `build:web` + копирование в `android/` (`cap sync`) |
+| `npm run apk` | собирает APK через Gradle |
+
+В `android/.gitignore` сгенерированные файлы (`assets/public`, `capacitor.config.json`,
+`capacitor-cordova-android-plugins`) не хранятся — их пересоздаёт `cap sync`,
+поэтому в репозитории только исходники нативного проекта.
 
 ## Где лежат данные
 

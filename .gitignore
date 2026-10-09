@@ -2,3 +2,6 @@ node_modules/
 npm-debug.log*
 .DS_Store
 *.local
+
+# собранные веб-ассеты для Capacitor (создаёт npm run build:web)
+www/

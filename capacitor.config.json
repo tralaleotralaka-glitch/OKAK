@@ -1,0 +1,12 @@
+{
+  "appId": "app.mysenger",
+  "appName": "MySENGER",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0e1118",
+    "allowMixedContent": false
+  }
+}
