@@ -54,9 +54,9 @@ jobs:
                        assets/public/index.html \
                        assets/public/css/styles.css \
                        assets/public/js/app.js \
+                       assets/public/js/core.js \
                        assets/public/js/store.js \
-                       assets/public/js/phone.js \
-                       assets/public/js/ui.js; do
+                       assets/public/vendor/qrcode.js; do
             if unzip -l "$APK" | grep -q "$entry"; then
               echo "ok   $entry"
             else
