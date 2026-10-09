@@ -63,14 +63,20 @@ tests/            тесты на node:test
 `js/phone.js` и `js/store.js` не знают про DOM и не зависят от хранилища —
 оно передаётся параметром, поэтому их можно прогонять в Node.
 
+## Два приложения в одном репозитории
+
+- **MySENGER** (корень: `index.html`, `js/`) — мессенджер, живёт как веб-приложение.
+- **ProxyTG** (`proxytg/`) — генератор MTProto-прокси с белыми списками. Именно он
+  пакуется в APK. Подробности — в [`proxytg/README.md`](proxytg/README.md).
+
 ## APK для Android
 
-Мессенджер упакован в Android-приложение через [Capacitor](https://capacitorjs.com):
-`android/` — нативный проект с WebView, веб-часть кладётся в
+В APK упакован **ProxyTG** через [Capacitor](https://capacitorjs.com):
+`android/` — нативный проект с WebView (`appId app.proxytg`), веб-часть кладётся в
 `android/app/src/main/assets/public`.
 
 **Скачать готовый APK:** раздел [Releases](../../releases) — файл
-`app-debug.apk` в релизе `apk-<имя-ветки>` (например `apk-main`).
+`ProxyTG-<версия>-debug.apk` в релизе `apk-<имя-ветки>` (например `apk-main`).
 Подпись отладочная, поэтому при установке Android попросит разрешить
 «Установку из неизвестных источников».
 
@@ -94,7 +100,7 @@ npm run apk        # = build:web → cap sync android → ./gradlew assembleDebu
 
 | Команда | Что делает |
 | --- | --- |
-| `npm run build:web` | складывает `index.html`, `css/`, `js/` в `www/` |
+| `npm run build:web` | складывает `proxytg/` (или другой каталог аргументом) в `www/` |
 | `npm run sync:android` | `build:web` + копирование в `android/` (`cap sync`) |
 | `npm run apk` | собирает APK через Gradle |
 

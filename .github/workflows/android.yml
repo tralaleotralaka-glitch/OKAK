@@ -67,7 +67,7 @@ jobs:
           SIZE=$(stat -c %s "$APK")
           SHA=$(sha256sum "$APK" | cut -d' ' -f1)
           VERSION=$(node -p "require('./package.json').version")
-          NAME="MySENGER-${VERSION}-debug.apk"
+          NAME="ProxyTG-${VERSION}-debug.apk"
           cp "$APK" "$NAME"
           {
             echo "file=$NAME"
@@ -79,7 +79,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MySENGER-debug-apk
+          name: ProxyTG-debug-apk
           path: ${{ steps.apk.outputs.file }}
 
       - name: Опубликовать APK в релизе
@@ -90,14 +90,15 @@ jobs:
           gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" \
             "${{ steps.apk.outputs.file }}" \
-            --title "MySENGER APK — ${GITHUB_REF_NAME}" \
+            --title "ProxyTG APK — ${GITHUB_REF_NAME}" \
             --notes "Собрано автоматически из ${GITHUB_SHA}.
 
             - файл: ${{ steps.apk.outputs.file }}
             - размер: ${{ steps.apk.outputs.size }} байт
             - sha256: \`${{ steps.apk.outputs.sha256 }}\`
 
-            Подпись отладочная (debug keystore), поэтому при установке Android попросит
-            разрешить «Установку из неизвестных источников». Данные мессенджера
+            Внутри — веб-приложение ProxyTG (генератор MTProto-прокси и белые списки).
+            Подпись отладочная (debug keystore), при установке Android попросит
+            разрешить «Установку из неизвестных источников». Конфигурации прокси
             хранятся в localStorage приложения и не покидают телефон." \
             --target "${GITHUB_SHA}"

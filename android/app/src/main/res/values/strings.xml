@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">MySENGER</string>
-    <string name="title_activity_main">MySENGER</string>
-    <string name="package_name">app.mysenger</string>
-    <string name="custom_url_scheme">app.mysenger</string>
+    <string name="app_name">ProxyTG</string>
+    <string name="title_activity_main">ProxyTG</string>
+    <string name="package_name">app.proxytg</string>
+    <string name="custom_url_scheme">app.proxytg</string>
 </resources>

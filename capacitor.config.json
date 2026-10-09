@@ -1,6 +1,6 @@
 {
-  "appId": "app.mysenger",
-  "appName": "MySENGER",
+  "appId": "app.proxytg",
+  "appName": "ProxyTG",
   "webDir": "www",
   "server": {
     "androidScheme": "https"

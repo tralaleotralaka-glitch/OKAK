@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>ProxyTG — MTProto прокси</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232f7cf6'/%3E%3Cpath d='M6 16l20-9-4 18-6-4-3 4-1-6z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand__logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M2.5 21l19-9-19-9-.01 7L15 12 2.49 14z"/></svg>
+      </span>
+      <span class="brand__name">Proxy<b>TG</b></span>
+    </div>
+    <span class="chip chip--dim" id="ver-chip"></span>
+  </header>
+
+  <!-- ══ ПРОКСИ ══ -->
+  <main class="tab is-active" id="tab-proxy">
+    <section class="card card--hero">
+      <div class="hero-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M2.5 21l19-9-19-9-.01 7L15 12 2.49 14z"/></svg>
+      </div>
+      <div class="status" id="status">Заполните сервер</div>
+      <div class="chips" id="chips"></div>
+      <div class="linkbox">
+        <code id="link-preview"></code>
+        <button class="icon-btn" id="btn-copy-link" title="Скопировать ссылку" aria-label="Скопировать ссылку">
+          <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
+        </button>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn--primary btn--big" id="btn-open-tg">
+          <svg viewBox="0 0 24 24"><path d="M2.5 21l19-9-19-9-.01 7L15 12 2.49 14z"/></svg>
+          Открыть в Telegram
+        </button>
+        <div class="hero-actions__row">
+          <button class="btn" id="btn-qr">QR-код</button>
+          <button class="btn" id="btn-save-proxy">В «Мои прокси»</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 class="card__title">Сервер</h3>
+      <div class="grid grid--server">
+        <label class="field">
+          <span class="field__label">Хост или IP</span>
+          <input class="input" id="inp-host" placeholder="proxy.example.com" autocomplete="off" spellcheck="false">
+        </label>
+        <button class="btn btn--cf" id="btn-cf" title="Случайный IP Cloudflare из белого списка">
+          CF<span class="btn__sub">IP</span>
+        </button>
+        <label class="field">
+          <span class="field__label">Порт</span>
+          <input class="input" id="inp-port" inputmode="numeric" value="443">
+        </label>
+      </div>
+
+      <h3 class="card__title">Секрет · Fake-TLS</h3>
+      <div class="grid grid--secret">
+        <label class="field">
+          <span class="field__label">Домен маскировки (SNI)</span>
+          <select class="input" id="sel-sni"></select>
+        </label>
+        <button class="btn" id="btn-gen-secret">
+          <svg viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6z"/></svg>
+          Сгенерировать
+        </button>
+      </div>
+      <div class="linkbox linkbox--mono">
+        <code id="secret-preview" class="is-mono"></code>
+        <span class="badge" id="secret-kind"></span>
+      </div>
+      <details class="deploy">
+        <summary>Как поднять свой сервер (docker, 1 команда)</summary>
+        <pre id="deploy-cmd"></pre>
+        <button class="btn btn--sm" id="btn-copy-deploy">Скопировать команду</button>
+      </details>
+    </section>
+
+    <section class="card">
+      <h3 class="card__title">Мои прокси <span class="count" id="proxy-count"></span></h3>
+      <div class="plist" id="proxy-list"></div>
+      <p class="muted" id="proxy-empty">Сохранённых прокси пока нет.</p>
+    </section>
+  </main>
+
+  <!-- ══ СПИСКИ ══ -->
+  <main class="tab" id="tab-lists">
+    <section class="card">
+      <h3 class="card__title">Белый список · домены маскировки (SNI)</h3>
+      <p class="muted">Эти домены зашиваются в fake-TLS секрет — трафик выглядит как обычный HTTPS к ним.</p>
+      <div class="chips chips--wrap" id="sni-chips"></div>
+      <div class="addrow">
+        <input class="input" id="inp-sni" placeholder="add.example.com">
+        <button class="btn" id="btn-sni-add">Добавить</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 class="card__title">Белый список · диапазоны Cloudflare</h3>
+      <p class="muted">Официальные IPv4-подсети CF. Кнопка «IP» копирует случайный адрес из подсети.</p>
+      <div class="rlist" id="cf-list"></div>
+    </section>
+
+    <section class="card">
+      <h3 class="card__title">Публичные прокси</h3>
+      <p class="muted">
+        Загружает свежие списки MTProto-прокси из открытых источников и раскладывает
+        их в «Мои прокси». Это чужие серверы: доступность не гарантируется,
+        владелец сервера видит факт подключения.
+      </p>
+      <div class="hero-actions__row">
+        <button class="btn btn--primary" id="btn-fetch">Обновить из интернета</button>
+        <span class="muted" id="fetch-status"></span>
+      </div>
+      <p class="muted" id="fetch-note"></p>
+    </section>
+  </main>
+
+  <!-- ══ ЛОГИ ══ -->
+  <main class="tab" id="tab-logs">
+    <section class="card">
+      <h3 class="card__title">Журнал <button class="btn btn--sm btn--danger" id="btn-clear-logs">Очистить</button></h3>
+      <div class="loglist" id="log-list"></div>
+      <p class="muted" id="log-empty">Журнал пуст.</p>
+    </section>
+  </main>
+
+  <!-- ══ НАСТРОЙКИ ══ -->
+  <main class="tab" id="tab-settings">
+    <section class="card">
+      <h3 class="card__title">Оформление</h3>
+      <div class="segmented" id="theme-switch">
+        <button class="seg" data-theme-value="dark">Тёмная</button>
+        <button class="seg" data-theme-value="light">Светлая</button>
+      </div>
+      <label class="switch-row">
+        <span><b>Случайный SNI</b><small>при каждой генерации секрета — домен из белого списка наугад</small></span>
+        <input type="checkbox" id="set-autosni" class="switch">
+        <span class="switch__ui"></span>
+      </label>
+      <label class="field">
+        <span class="field__label">Порт по умолчанию</span>
+        <input class="input" id="set-port" inputmode="numeric">
+      </label>
+    </section>
+    <section class="card">
+      <h3 class="card__title">Источники публичных списков</h3>
+      <p class="muted">По одной ссылке на строку (нужен CORS: подходит raw.githubusercontent.com).</p>
+      <textarea class="input is-mono" id="set-sources" rows="4" spellcheck="false"></textarea>
+      <button class="btn btn--sm" id="btn-sources-save">Сохранить источники</button>
+    </section>
+    <section class="card">
+      <h3 class="card__title">Данные</h3>
+      <p class="muted" id="data-stats"></p>
+      <div class="hero-actions__row">
+        <button class="btn" id="btn-export">Выгрузить JSON</button>
+        <button class="btn btn--danger" id="btn-wipe">Стереть всё</button>
+      </div>
+    </section>
+    <p class="foot">ProxyTG · локальная версия, данные в этом браузере</p>
+  </main>
+
+  <!-- ══ нижняя навигация ══ -->
+  <nav class="bottomnav" aria-label="Разделы">
+    <button class="navbtn is-active" data-tab="proxy">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 17.9V18a1 1 0 1 0-2 0v1.9A8 8 0 0 1 4.1 13H6a1 1 0 1 0 0-2H4.1A8 8 0 0 1 11 4.1V6a1 1 0 1 0 2 0V4.1A8 8 0 0 1 19.9 11H18a1 1 0 1 0 0 2h1.9a8 8 0 0 1-6.9 6.9z"/></svg>
+      <span>Прокси</span>
+    </button>
+    <button class="navbtn" data-tab="lists">
+      <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>
+      <span>Списки</span>
+    </button>
+    <button class="navbtn" data-tab="logs">
+      <svg viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm2 4v2h12V7zm0 4v2h9v-2zm0 4v2h12v-2z"/></svg>
+      <span>Логи</span>
+    </button>
+    <button class="navbtn" data-tab="settings">
+      <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7zm7.4-3.5a7.4 7.4 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-2-1.2L14.5 3h-5l-.4 2.6a7.6 7.6 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6a7.4 7.4 0 0 0 0 2.4l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 2 1.2l.4 2.6h5l.4-2.6a7.6 7.6 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2z"/></svg>
+      <span>Ещё</span>
+    </button>
+  </nav>
+</div>
+
+<!-- QR -->
+<div class="modal" id="qr-modal" hidden>
+  <div class="modal__box">
+    <h2>QR для Telegram</h2>
+    <div class="qr" id="qr-box"></div>
+    <code class="qr__link" id="qr-link"></code>
+    <div class="modal__actions">
+      <button class="btn" id="btn-qr-copy">Скопировать ссылку</button>
+      <button class="btn btn--primary" id="btn-qr-close">Готово</button>
+    </div>
+  </div>
+</div>
+
+<!-- подтверждение -->
+<div class="modal" id="confirm-modal" hidden>
+  <div class="modal__box">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-text"></p>
+    <div class="modal__actions" id="confirm-actions"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="vendor/qrcode.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

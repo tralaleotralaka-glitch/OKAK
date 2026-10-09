@@ -1,4 +1,4 @@
-package app.mysenger;
+package app.proxytg;
 
 import com.getcapacitor.BridgeActivity;
 
