@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MySENGER</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ===== Экран: список чатов ===== -->
+    <section class="screen" id="screen-list">
+      <header class="topbar">
+        <div class="topbar__me">
+          <div class="avatar avatar--sm" id="me-avatar"></div>
+          <div class="topbar__title">
+            <span class="brand">MySENGER</span>
+            <span class="topbar__sub" id="me-name"></span>
+          </div>
+        </div>
+        <button class="icon-btn" id="btn-settings" title="Настройки" aria-label="Настройки">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.5 7.5 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.84a.5.5 0 0 0-.49.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.67 8.48a.5.5 0 0 0 .12.64l2.03 1.58a7.5 7.5 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.04.24.25.42.49.42h3.84c.24 0 .45-.18.49-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.22.08.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+        </button>
+      </header>
+
+      <ul class="chat-list" id="chat-list"></ul>
+
+      <div class="empty" id="empty-list">
+        <div class="empty__icon">💬</div>
+        <p>Здесь пока пусто</p>
+        <p class="muted">Нажмите <b>+</b> в правом нижнем углу, чтобы начать переписку по номеру телефона</p>
+      </div>
+
+      <button class="fab" id="btn-add" title="Новый чат" aria-label="Новый чат">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+      </button>
+    </section>
+
+    <!-- ===== Экран: переписка ===== -->
+    <section class="screen hidden" id="screen-chat">
+      <header class="topbar">
+        <button class="icon-btn" id="btn-back-chat" aria-label="Назад">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+        </button>
+        <div class="topbar__me topbar__me--grow">
+          <div class="avatar avatar--sm" id="chat-avatar"></div>
+          <div class="topbar__title">
+            <span class="chat-title" id="chat-title"></span>
+            <span class="topbar__sub" id="chat-sub"></span>
+          </div>
+        </div>
+        <button class="icon-btn" id="btn-delete-chat" title="Удалить чат" aria-label="Удалить чат">
+          <svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </header>
+
+      <div class="messages" id="messages"></div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <input type="text" id="msg-input" placeholder="Сообщение" maxlength="2000" />
+        <button type="submit" class="send-btn" id="btn-send" aria-label="Отправить">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ===== Экран: настройки ===== -->
+    <section class="screen hidden" id="screen-settings">
+      <header class="topbar">
+        <button class="icon-btn" id="btn-back-settings" aria-label="Назад">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+        </button>
+        <div class="topbar__title topbar__me--grow"><span class="chat-title">Настройки</span></div>
+      </header>
+
+      <div class="settings">
+        <div class="settings__avatar">
+          <div class="avatar avatar--xl" id="set-avatar"></div>
+          <div class="settings__avatar-actions">
+            <label class="btn btn--ghost">
+              Сменить аватарку
+              <input type="file" id="avatar-file" accept="image/*" hidden />
+            </label>
+            <button class="btn btn--text" id="btn-avatar-remove" type="button">Удалить фото</button>
+          </div>
+        </div>
+
+        <label class="field">
+          <span class="field__label">Имя</span>
+          <input type="text" id="set-name" maxlength="40" placeholder="Ваше имя" />
+        </label>
+
+        <div class="field">
+          <span class="field__label">Тема</span>
+          <div class="segmented" id="theme-switch">
+            <button type="button" data-theme="light">☀️ Светлая</button>
+            <button type="button" data-theme="dark">🌙 Тёмная</button>
+          </div>
+        </div>
+
+        <button class="btn btn--primary" id="btn-save-settings" type="button">Сохранить</button>
+      </div>
+    </section>
+
+    <!-- ===== Модалка: новый номер ===== -->
+    <div class="modal hidden" id="modal-add">
+      <div class="modal__card">
+        <h3>Новый чат</h3>
+        <p class="muted">Введите номер телефона</p>
+        <input type="tel" id="phone-input" placeholder="+7 900 000-00-00" inputmode="tel" maxlength="20" />
+        <p class="error hidden" id="phone-error">Введите корректный номер (от 7 до 15 цифр)</p>
+        <div class="modal__actions">
+          <button class="btn btn--text" id="btn-add-cancel" type="button">Отмена</button>
+          <button class="btn btn--primary hidden" id="btn-apply" type="button">Применить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Модалка: подтверждение ===== -->
+    <div class="modal hidden" id="modal-confirm">
+      <div class="modal__card">
+        <h3 id="confirm-title"></h3>
+        <p class="muted" id="confirm-text"></p>
+        <div class="modal__actions" id="confirm-actions"></div>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
