@@ -1,0 +1,29 @@
+{
+  "name": "okak-vpn-suite",
+  "version": "1.0.0",
+  "description": "Next-Gen Censorship-Resistant VPN & Proxy Suite (VLESS Reality, AmneziaWG, WireGuard, Shadowsocks-2022)",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "generate-keys": "node scripts/generate-keys.js",
+    "test-proxy": "node scripts/test-tunnel.js"
+  },
+  "keywords": [
+    "vpn",
+    "vless",
+    "xray",
+    "reality",
+    "amneziawg",
+    "wireguard",
+    "shadowsocks",
+    "censorship-circumvention",
+    "anti-dpi"
+  ],
+  "author": "OKAK",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "qrcode": "^1.5.4"
+  }
+}

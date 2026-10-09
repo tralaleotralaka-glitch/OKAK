@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OKAK VPN Suite — Неблокируемый VPN нового поколения</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Navigation Sidebar / Header -->
+    <header class="header">
+      <div class="header-container">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">OKAK VPN Suite</div>
+            <div class="brand-subtitle">Censorship-Resistant Anti-DPI VPN</div>
+          </div>
+        </div>
+
+        <nav class="nav-tabs">
+          <button class="nav-btn active" data-tab="generator">
+            <span class="icon">⚡</span> Генератор и QR
+          </button>
+          <button class="nav-btn" data-tab="deploy">
+            <span class="icon">🚀</span> Установка на VPS
+          </button>
+          <button class="nav-btn" data-tab="clients">
+            <span class="icon">📱</span> Клиенты (iOS / Android / PC)
+          </button>
+          <button class="nav-btn" data-tab="technology">
+            <span class="icon">🛡️</span> Как обойти DPI
+          </button>
+          <button class="nav-btn" data-tab="diagnostics">
+            <span class="icon">🧪</span> Диагностика
+          </button>
+        </nav>
+
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text" id="tunnel-status-text">Anti-DPI Ready</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- TAB 1: GENERATOR -->
+      <section id="tab-generator" class="tab-pane active">
+        <div class="hero-card">
+          <div class="hero-badge">Сверхнадежный протокол 2026</div>
+          <h1>Рабочий VPN с защитой от блокировок РКН и DPI</h1>
+          <p>
+            VLESS + Reality и AmneziaWG маскируют трафик под легальные соединения с серверами Apple, Google или Microsoft. Они неотличимы от обычного веб-трафика и стабильно работают даже при строгих блокировках.
+          </p>
+        </div>
+
+        <div class="grid-layout">
+          <!-- Left Column: Settings -->
+          <div class="card form-card">
+            <div class="card-header">
+              <h2>Параметры подключения</h2>
+              <button id="btn-quick-random" class="btn-sm btn-ghost" title="Сгенерировать случайные параметры">
+                🔄 Случайные ключи
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label>Протокол</label>
+              <div class="protocol-grid">
+                <label class="protocol-option active" data-proto="vless-reality">
+                  <input type="radio" name="protocol" value="vless-reality" checked>
+                  <div class="proto-content">
+                    <div class="proto-top">
+                      <span class="proto-name">VLESS Reality</span>
+                      <span class="tag tag-success">Топ обхода DPI</span>
+                    </div>
+                    <span class="proto-desc">Маскировка под HTTPS Apple/Google, нулевые следы</span>
+                  </div>
+                </label>
+
+                <label class="protocol-option" data-proto="amneziawg">
+                  <input type="radio" name="protocol" value="amneziawg">
+                  <div class="proto-content">
+                    <div class="proto-top">
+                      <span class="proto-name">AmneziaWG</span>
+                      <span class="tag tag-cyan">WireGuard + Anti-DPI</span>
+                    </div>
+                    <span class="proto-desc">Максимальная скорость WireGuard + мусорные пакеты</span>
+                  </div>
+                </label>
+
+                <label class="protocol-option" data-proto="wireguard">
+                  <input type="radio" name="protocol" value="wireguard">
+                  <div class="proto-content">
+                    <div class="proto-top">
+                      <span class="proto-name">WireGuard</span>
+                      <span class="tag tag-muted">Классический</span>
+                    </div>
+                    <span class="proto-desc">Стандартный протокол для обычных сетей</span>
+                  </div>
+                </label>
+
+                <label class="protocol-option" data-proto="shadowsocks">
+                  <input type="radio" name="protocol" value="shadowsocks">
+                  <div class="proto-content">
+                    <div class="proto-top">
+                      <span class="proto-name">Shadowsocks-2022</span>
+                      <span class="tag tag-purple">AEAD Прокси</span>
+                    </div>
+                    <span class="proto-desc">Устойчивый шифрованный транспорт blake3</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="server-ip">IP-адрес или домен вашего VPS</label>
+                <input type="text" id="server-ip" placeholder="например: 185.120.45.10" value="185.120.45.10">
+                <span class="field-hint">IP вашего удаленного сервера (куда ставите VPN)</span>
+              </div>
+              <div class="form-group w-30">
+                <label for="server-port">Порт</label>
+                <input type="number" id="server-port" placeholder="443" value="443">
+                <span class="field-hint">443 для Reality (HTTPS)</span>
+              </div>
+            </div>
+
+            <!-- Camouflage SNI selection for Reality -->
+            <div id="sni-selector-group" class="form-group">
+              <label>Маскировочный домен (Camouflage SNI)</label>
+              <div class="sni-chips" id="sni-chips">
+                <!-- dynamic chips will be loaded here -->
+              </div>
+              <input type="text" id="custom-sni" placeholder="gateway.icloud.com" value="gateway.icloud.com">
+              <span class="field-hint">Сервер к которому маскируется трафик (должен поддерживать TLS 1.3)</span>
+            </div>
+
+            <div class="form-group">
+              <label for="client-name">Имя клиента / устройства</label>
+              <input type="text" id="client-name" placeholder="OKAK-iPhone" value="OKAK-iPhone">
+            </div>
+
+            <button id="btn-generate" class="btn btn-primary btn-block">
+              ⚡ Сгенерировать профиль и QR-код
+            </button>
+          </div>
+
+          <!-- Right Column: Result Output & QR -->
+          <div class="card result-card">
+            <div class="card-header">
+              <h2>Готовый профиль подключения</h2>
+              <div class="actions">
+                <button id="btn-copy-uri" class="btn-sm btn-secondary">📋 Скопировать</button>
+                <button id="btn-download-conf" class="btn-sm btn-secondary">💾 Скачать файл</button>
+              </div>
+            </div>
+
+            <div class="qr-container">
+              <div class="qr-box">
+                <img id="qr-image" alt="QR-код для подключения" src="">
+                <div class="qr-caption">Наведите камеру в приложении (Streisand, v2rayNG, AmneziaWG)</div>
+              </div>
+              <div class="qr-meta">
+                <div class="meta-item">
+                  <span class="meta-label">Протокол:</span>
+                  <span class="meta-value" id="res-proto-name">VLESS Reality</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Сервер:</span>
+                  <span class="meta-value font-mono" id="res-server-endpoint">185.120.45.10:443</span>
+                </div>
+                <div class="meta-item" id="meta-sni-item">
+                  <span class="meta-label">SNI Маскировка:</span>
+                  <span class="meta-value font-mono" id="res-sni">gateway.icloud.com</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Шифрование:</span>
+                  <span class="meta-value text-success">x25519 / XTLS-Vision</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="output-group">
+              <div class="output-tabs">
+                <button class="out-tab-btn active" data-out="link">Ссылка для импорта</button>
+                <button class="out-tab-btn" data-out="server">Конфигурация сервера</button>
+                <button class="out-tab-btn" data-out="clash">Clash / Sing-box</button>
+              </div>
+              <div class="code-preview-box">
+                <textarea id="output-text" readonly spellcheck="false"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: DEPLOY -->
+      <section id="tab-deploy" class="tab-pane">
+        <div class="hero-card">
+          <div class="hero-badge">Автоматизация за 1 минуту</div>
+          <h1>Развертывание на собственном сервере (VPS)</h1>
+          <p>
+            Скрипт автоматически настраивает Docker, Xray Reality, AmneziaWG, оптимизацию ядра Linux (BBR TCP), защиту от утечек DNS и межсетевой экран.
+          </p>
+        </div>
+
+        <div class="steps-flow">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Арендуйте VPS</h3>
+            <p>Подойдет любой сервер на Ubuntu 22.04 / 24.04 или Debian 12 (1 vCPU, 1 GB RAM, стоимость от 150-300 руб/мес).</p>
+            <div class="tags-row">
+              <span class="tag">Любая страна</span>
+              <span class="tag">Ubuntu / Debian</span>
+              <span class="tag">KVM виртуализация</span>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Подключитесь по SSH</h3>
+            <p>Откройте терминал на компьютере или смартфоне и введите:</p>
+            <div class="code-line">
+              <code>ssh root@ВАШ_IP_СЕРВЕРА</code>
+              <button class="copy-line-btn" data-copy="ssh root@ВАШ_IP_СЕРВЕРА">📋</button>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Запустите автоустановщик</h3>
+            <p>Выполните одну команду, которая автоматически всё настроит и выведет готовые QR-коды:</p>
+            <div class="code-line highlight">
+              <code id="install-cmd-code">bash install.sh</code>
+              <button class="copy-line-btn" data-copy="bash install.sh">📋</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-24">
+          <div class="card-header">
+            <h2>Комплектация Docker Compose (Готово к запуску)</h2>
+            <button id="btn-copy-docker" class="btn-sm btn-secondary">📋 Скопировать docker-compose.yml</button>
+          </div>
+          <p class="text-muted mb-16">
+            Если вы предпочитаете ручной запуск через Docker, все конфигурационные файлы уже подготовлены в репозитории:
+          </p>
+          <pre class="code-block"><code id="docker-compose-preview">services:
+  xray:
+    image: ghcr.io/xtls/xray-core:latest
+    container_name: okak-xray-reality
+    restart: always
+    network_mode: host
+    volumes:
+      - ./configs/xray/config.json:/etc/xray/config.json:ro
+    cap_add:
+      - NET_ADMIN
+
+  amneziawg:
+    image: amneziavpn/amneziawg:latest
+    container_name: okak-amneziawg
+    restart: always
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./configs/amneziawg/awg0.conf:/etc/wireguard/wg0.conf:ro
+
+  vpn-manager:
+    image: node:22-alpine
+    container_name: okak-vpn-manager
+    restart: always
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm start"</code></pre>
+        </div>
+      </section>
+
+      <!-- TAB 3: CLIENTS -->
+      <section id="tab-clients" class="tab-pane">
+        <div class="hero-card">
+          <div class="hero-badge">Кроссплатформенность</div>
+          <h1>Клиенты для подключения на любых устройствах</h1>
+          <p>Выберите вашу платформу для пошаговой инструкции подключения за 30 секунд.</p>
+        </div>
+
+        <div class="platform-tabs">
+          <button class="platform-tab active" data-platform="ios">🍏 iPhone / iPad (iOS)</button>
+          <button class="platform-tab" data-platform="android">🤖 Android</button>
+          <button class="platform-tab" data-platform="windows">🪟 Windows</button>
+          <button class="platform-tab" data-platform="macos">💻 macOS</button>
+          <button class="platform-tab" data-platform="routers">📡 Роутеры (Keenetic / OpenWrt)</button>
+        </div>
+
+        <div class="platform-content card" id="platform-content">
+          <!-- Dynamic platform guide loaded here -->
+        </div>
+      </section>
+
+      <!-- TAB 4: TECHNOLOGY / DPI BYPASS -->
+      <section id="tab-technology" class="tab-pane">
+        <div class="hero-card">
+          <div class="hero-badge">Анализ протоколов</div>
+          <h1>Почему старые VPN блокируются и как работает обход</h1>
+          <p>
+            Современные DPI-системы операторов связи определяют и мгновенно глушат типичные протоколы VPN. Вот почему наши решения не поддаются блокировке.
+          </p>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="compare-card bad">
+            <div class="compare-badge red">Устарело и блокируется</div>
+            <h3>OpenVPN / WireGuard / IPsec</h3>
+            <ul>
+              <li>❌ <strong>Явный Handshake:</strong> DPI сразу видит характерные сигнатуры и размеры пакетов первого обмена.</li>
+              <li>❌ <strong>Блокировка по протоколу:</strong> Провайдер дропает UDP трафик на нестандартных портах.</li>
+              <li>❌ <strong>Активный пробинг:</strong> Цензор отправляет зонды на IP сервера и мгновенно его банит.</li>
+            </ul>
+          </div>
+
+          <div class="compare-card good">
+            <div class="compare-badge green">VLESS + XTLS Reality</div>
+            <h3>Маскировка под легитимный HTTPS</h3>
+            <ul>
+              <li>✅ <strong>Чужой сертификат:</strong> Сервер выдает себя за подлинный <code>gateway.icloud.com</code> или <code>dl.google.com</code>.</li>
+              <li>✅ <strong>Активный зонд отражается:</strong> Если цензор отправляет проверку на ваш IP, сервер перенаправляет его на настоящий Apple или Google!</li>
+              <li>✅ <strong>TLS 1.3 + Vision:</strong> Трафик внутри полностью неотличим от просмотра обычных защищенных сайтов.</li>
+            </ul>
+          </div>
+
+          <div class="compare-card good">
+            <div class="compare-badge green">AmneziaWG (AWG)</div>
+            <h3>Обфусцированный WireGuard</h3>
+            <ul>
+              <li>✅ <strong>Junk Packets (Мусор):</strong> В начало соединения добавляются случайные байты, сбивающие распознавание пакетов DPI.</li>
+              <li>✅ <strong>Рандомизация заголовков:</strong> Случайные значения H1-H4 делают протокол похожим на случайный шум.</li>
+              <li>✅ <strong>Скорость ядра:</strong> Работает на предельной скорости канала без лишних накладных расходов.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mt-24">
+          <h2>Сравнительная таблица протоколов</h2>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Протокол</th>
+                  <th>Стойкость к DPI / РКН</th>
+                  <th>Скорость</th>
+                  <th>Пинг</th>
+                  <th>Расход батареи</th>
+                  <th>Рекомендуемые приложения</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong class="text-white">VLESS + Reality</strong></td>
+                  <td><span class="badge-success">⭐⭐⭐⭐⭐ 100%</span></td>
+                  <td>Очень высокая</td>
+                  <td>Минимальный</td>
+                  <td>Очень низкий</td>
+                  <td>Streisand, v2rayNG, FoXray, V2Box</td>
+                </tr>
+                <tr>
+                  <td><strong class="text-white">AmneziaWG</strong></td>
+                  <td><span class="badge-success">⭐⭐⭐⭐⭐ 98%</span></td>
+                  <td>Максимальная</td>
+                  <td>Ультранизкий</td>
+                  <td>Минимальный</td>
+                  <td>AmneziaWG app, Amnezia Client</td>
+                </tr>
+                <tr>
+                  <td><strong class="text-white">Shadowsocks-2022</strong></td>
+                  <td><span class="badge-warning">⭐⭐⭐ 80%</span></td>
+                  <td>Высокая</td>
+                  <td>Низкий</td>
+                  <td>Низкий</td>
+                  <td>v2rayNG, Outline, Shadowrocket</td>
+                </tr>
+                <tr>
+                  <td><strong class="text-white">Классический WireGuard</strong></td>
+                  <td><span class="badge-danger">⭐ Блокируется</span></td>
+                  <td>Максимальная</td>
+                  <td>Ультранизкий</td>
+                  <td>Минимальный</td>
+                  <td>WireGuard official</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: DIAGNOSTICS & TUNNEL TEST -->
+      <section id="tab-diagnostics" class="tab-pane">
+        <div class="hero-card">
+          <div class="hero-badge">Мониторинг и тест</div>
+          <h1>Диагностика туннелей и проверка сети</h1>
+          <p>Проверьте доступность шлюзов и отклик сетевых соединений.</p>
+        </div>
+
+        <div class="grid-layout">
+          <div class="card">
+            <div class="card-header">
+              <h2>Встроенный локальный прокси-шлюз</h2>
+              <span class="tag tag-success">Active</span>
+            </div>
+            <div class="diag-stats">
+              <div class="stat-box">
+                <span class="stat-num" id="diag-http-port">8085</span>
+                <span class="stat-lbl">HTTP Proxy Port</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-num" id="diag-socks-port">1080</span>
+                <span class="stat-lbl">SOCKS5 Port</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-num" id="diag-uptime">0s</span>
+                <span class="stat-lbl">Время работы</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-num" id="diag-requests">0</span>
+                <span class="stat-lbl">Всего запросов</span>
+              </div>
+            </div>
+            <p class="text-muted mt-16">
+              Вы можете использовать этот порт локально на вашей машине как HTTP CONNECT или SOCKS5 прокси.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Проверка задержки (Ping Test)</h2>
+              <button id="btn-run-ping" class="btn-sm btn-primary">⚡ Запустить тест</button>
+            </div>
+            <div class="ping-targets" id="ping-targets-list">
+              <div class="ping-row" data-target="https://api.github.com">
+                <span class="ping-name">GitHub API (TLS 1.3)</span>
+                <span class="ping-val" id="ping-res-github">Ожидание...</span>
+              </div>
+              <div class="ping-row" data-target="https://registry.npmjs.org">
+                <span class="ping-name">NPM Registry Edge</span>
+                <span class="ping-val" id="ping-res-npm">Ожидание...</span>
+              </div>
+              <div class="ping-row" data-target="https://pypi.org">
+                <span class="ping-name">PyPI CDN</span>
+                <span class="ping-val" id="ping-res-pypi">Ожидание...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div>OKAK VPN Suite &bull; Anti-DPI & Anti-Censorship System</div>
+        <div class="footer-meta">VLESS Reality &bull; AmneziaWG &bull; WireGuard &bull; Shadowsocks-2022</div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
