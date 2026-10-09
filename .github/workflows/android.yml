@@ -44,16 +44,43 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Проверить, что внутри APK
+      - name: Проверить содержимое APK
+        id: apk
         run: |
           APK=android/app/build/outputs/apk/debug/app-debug.apk
-          ls -lh "$APK"
-          unzip -l "$APK" | grep -E "assets/public/index.html|assets/public/js/app.js|AndroidManifest.xml"
+          test -f "$APK"
+          for entry in AndroidManifest.xml classes.dex resources.arsc \
+                       assets/capacitor.config.json \
+                       assets/public/index.html \
+                       assets/public/css/styles.css \
+                       assets/public/js/app.js \
+                       assets/public/js/store.js \
+                       assets/public/js/phone.js \
+                       assets/public/js/ui.js; do
+            if unzip -l "$APK" | grep -q "$entry"; then
+              echo "ok   $entry"
+            else
+              echo "::error::в APK отсутствует $entry"
+              exit 1
+            fi
+          done
+          SIZE=$(stat -c %s "$APK")
+          SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+          VERSION=$(node -p "require('./package.json').version")
+          NAME="MySENGER-${VERSION}-debug.apk"
+          cp "$APK" "$NAME"
+          {
+            echo "file=$NAME"
+            echo "sha256=$SHA"
+            echo "size=$SIZE"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::APK собран: $NAME, $SIZE байт, sha256 $SHA"
+          unzip -l "$APK" | tail -2
 
       - uses: actions/upload-artifact@v4
         with:
           name: MySENGER-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ steps.apk.outputs.file }}
 
       - name: Опубликовать APK в релизе
         env:
@@ -62,9 +89,13 @@ jobs:
           TAG="apk-${GITHUB_REF_NAME//\//-}"
           gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" \
-            android/app/build/outputs/apk/debug/app-debug.apk \
+            "${{ steps.apk.outputs.file }}" \
             --title "MySENGER APK — ${GITHUB_REF_NAME}" \
             --notes "Собрано автоматически из ${GITHUB_SHA}.
+
+            - файл: ${{ steps.apk.outputs.file }}
+            - размер: ${{ steps.apk.outputs.size }} байт
+            - sha256: \`${{ steps.apk.outputs.sha256 }}\`
 
             Подпись отладочная (debug keystore), поэтому при установке Android попросит
             разрешить «Установку из неизвестных источников». Данные мессенджера
