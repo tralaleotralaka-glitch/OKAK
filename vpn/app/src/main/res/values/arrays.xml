@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- DNS -->
     <string-array name="dns_entries">
         <item>Cloudflare</item>
         <item>Google</item>
@@ -12,7 +13,6 @@
         <item>Cloudflare Families</item>
         <item>Google Family</item>
     </string-array>
-    <!-- первичный DNS каждого провайдера, параллельно dns_entries -->
     <string-array name="dns_values">
         <item>1.1.1.1</item>
         <item>8.8.8.8</item>
@@ -24,5 +24,60 @@
         <item>199.85.126.10</item>
         <item>1.1.1.3</item>
         <item>8.8.4.4</item>
+    </string-array>
+
+    <!-- Каталог серверов по всему миру -->
+    <string-array name="vpn_locations">
+        <item>🇳🇱 Нидерланды — Амстердам</item>
+        <item>🇩🇪 Германия — Франкфурт</item>
+        <item>🇬🇧 Великобритания — Лондон</item>
+        <item>🇫🇷 Франция — Париж</item>
+        <item>🇪🇸 Испания — Мадрид</item>
+        <item>🇮🇹 Италия — Милан</item>
+        <item>🇸🇪 Швеция — Стокгольм</item>
+        <item>🇵🇱 Польша — Варшава</item>
+        <item>🇨🇭 Швейцария — Цюрих</item>
+        <item>🇨🇿 Чехия — Прага</item>
+        <item>🇦🇹 Австрия — Вена</item>
+        <item>🇫🇮 Финляндия — Хельсинки</item>
+        <item>🇳🇴 Норвегия — Осло</item>
+        <item>🇩🇰 Дания — Копенгаген</item>
+        <item>🇵🇹 Португалия — Лиссабон</item>
+        <item>🇧🇪 Бельгия — Брюссель</item>
+        <item>🇷🇴 Румыния — Бухарест</item>
+        <item>🇺🇦 Украина — Киев</item>
+        <item>🇹🇷 Турция — Стамбул</item>
+        <item>🇺🇸 США — Нью-Йорк</item>
+        <item>🇺🇸 США — Лос-Анджелес</item>
+        <item>🇺🇸 США — Чикаго</item>
+        <item>🇺🇸 США — Майами</item>
+        <item>🇺🇸 США — Даллас</item>
+        <item>🇨🇦 Канада — Торонто</item>
+        <item>🇨🇦 Канада — Ванкувер</item>
+        <item>🇲🇽 Мексика — Мехико</item>
+        <item>🇧🇷 Бразилия — Сан-Паулу</item>
+        <item>🇦🇷 Аргентина — Буэнос-Айрес</item>
+        <item>🇨🇴 Колумбия — Богота</item>
+        <item>🇨🇱 Чили — Сантьяго</item>
+        <item>🇯🇵 Япония — Токио</item>
+        <item>🇰🇷 Корея — Сеул</item>
+        <item>🇸🇬 Сингапур</item>
+        <item>🇭🇰 Гонконг</item>
+        <item>🇮🇳 Индия — Мумбаи</item>
+        <item>🇹🇭 Таиланд — Бангкок</item>
+        <item>🇮🇩 Индонезия — Джакарта</item>
+        <item>🇵🇭 Филиппины — Манила</item>
+        <item>🇻🇳 Вьетнам — Ханой</item>
+        <item>🇦🇪 ОАЭ — Дубай</item>
+        <item>🇮🇱 Израиль — Тель-Авив</item>
+        <item>🇰🇿 Казахстан — Алматы</item>
+        <item>🇬🇪 Грузия — Тбилиси</item>
+        <item>🇦🇲 Армения — Ереван</item>
+        <item>🇿🇦 ЮАР — Йоханнесбург</item>
+        <item>🇪🇬 Египет — Каир</item>
+        <item>🇳🇬 Нигерия — Лагос</item>
+        <item>🇦🇺 Австралия — Сидней</item>
+        <item>🇦🇺 Австралия — Мельбурн</item>
+        <item>🇳🇿 Новая Зеландия — Окленд</item>
     </string-array>
 </resources>

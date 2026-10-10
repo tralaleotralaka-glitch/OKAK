@@ -21,9 +21,10 @@ import java.util.Locale;
 
 public class MainActivity extends Activity {
 
-    static final String PREFS = "propysk";
+    static final String PREFS = "worldvpn";
     static final String KEY_THEME = "dark";
     static final String KEY_DNS = "dns_index";
+    static final String KEY_SERVER = "server_index";
     private static final int REQ_PREPARE = 100;
 
     private ImageButton power;
@@ -33,6 +34,7 @@ public class MainActivity extends Activity {
     private View card;
     private Switch themeSwitch;
     private Spinner dnsSpinner;
+    private Spinner vpnSpinner;
 
     private boolean connected;
     private boolean isDark;
@@ -63,6 +65,7 @@ public class MainActivity extends Activity {
         card = findViewById(R.id.card);
         themeSwitch = findViewById(R.id.theme);
         dnsSpinner = findViewById(R.id.dns);
+        vpnSpinner = findViewById(R.id.vpn);
 
         card.getBackground().setTint(getColor(isDark ? R.color.surface : R.color.surface_light));
 
@@ -74,22 +77,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.dns_entries, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        dnsSpinner.setAdapter(adapter);
-        int savedDns = prefs.getInt(KEY_DNS, 0);
-        dnsSpinner.setSelection(savedDns);
-        dnsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putInt(KEY_DNS, pos).apply();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> p) {
-            }
-        });
+        bindSpinner(vpnSpinner, R.array.vpn_locations, prefs.getInt(KEY_SERVER, 0), KEY_SERVER);
+        bindSpinner(dnsSpinner, R.array.dns_entries, prefs.getInt(KEY_DNS, 0), KEY_DNS);
 
         LocalVpnService.listener = new LocalVpnService.StatusListener() {
             @Override
@@ -110,6 +99,25 @@ public class MainActivity extends Activity {
 
         power.setOnClickListener(v -> toggle());
         setConnected(false);
+    }
+
+    private void bindSpinner(Spinner sp, int arrayRes, int saved, String key) {
+        ArrayAdapter<CharSequence> a = ArrayAdapter.createFromResource(
+                this, arrayRes, android.R.layout.simple_spinner_item);
+        a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp.setAdapter(a);
+        if (saved < 0 || saved >= a.getCount()) saved = 0;
+        sp.setSelection(saved);
+        sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putInt(key, pos).apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> p) {
+            }
+        });
     }
 
     private void toggle() {
@@ -144,16 +152,19 @@ public class MainActivity extends Activity {
 
     private void setConnected(boolean on) {
         connected = on;
-        status.setText(on ? R.string.status_on : R.string.status_off);
-        status.setTextColor(getColor(on ? R.color.on : (isDark ? R.color.muted : R.color.muted_light)));
-        power.getBackground().setTint(getColor(on ? R.color.on : (isDark ? R.color.off : R.color.off_light)));
         if (on) {
+            Object loc = vpnSpinner.getSelectedItem();
+            status.setText(getString(R.string.status_on) + " · " + loc);
+            status.setTextColor(getColor(R.color.on));
             timer.setText("00:00");
             handler.post(ticker);
         } else {
+            status.setText(R.string.status_off);
+            status.setTextColor(getColor(isDark ? R.color.muted : R.color.muted_light));
             timer.setText("00:00");
             bytes.setText("↓ 0 Б");
         }
+        power.getBackground().setTint(getColor(on ? R.color.on : (isDark ? R.color.off : R.color.off_light)));
     }
 
     private static String human(long b) {

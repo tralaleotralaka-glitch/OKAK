@@ -14,7 +14,7 @@ concurrency:
 jobs:
   # ── Нативный VPN (основной релиз) ─────────────────────────────
   vpn:
-    name: Сборка Obxod (native)
+    name: Сборка WorldVPN (native)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,18 +49,18 @@ jobs:
           SIZE=$(stat -c %s "$APK")
           SHA=$(sha256sum "$APK" | cut -d' ' -f1)
           VERSION=$(grep -o "versionName '[^']*'" app/build.gradle | cut -d"'" -f2)
-          NAME="OBXOD-${VERSION}-debug.apk"
+          NAME="WORLDVPN-${VERSION}-debug.apk"
           cp "$APK" "$NAME"
           {
             echo "file=$NAME"
             echo "sha256=$SHA"
             echo "size=$SIZE"
           } >> "$GITHUB_OUTPUT"
-          echo "::notice::Obxod APK собран: $NAME, $SIZE байт, sha256 $SHA"
+          echo "::notice::WorldVPN APK собран: $NAME, $SIZE байт, sha256 $SHA"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: OBXOD-debug-apk
+          name: WORLDVPN-debug-apk
           path: vpn/${{ steps.vpnapk.outputs.file }}
 
       - name: Опубликовать VPN APK (основной релиз)
@@ -71,7 +71,7 @@ jobs:
           gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" \
             "vpn/${{ steps.vpnapk.outputs.file }}" \
-            --title "Obxod — ${GITHUB_REF_NAME}" \
+            --title "WorldVPN — ${GITHUB_REF_NAME}" \
             --notes "Нативный Android VPN (VpnService) с большой кнопкой включения.
 
             - файл: ${{ steps.vpnapk.outputs.file }}

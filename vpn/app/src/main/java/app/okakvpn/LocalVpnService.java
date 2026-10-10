@@ -60,13 +60,16 @@ public class LocalVpnService extends VpnService {
 
     private void run() {
         try {
+            android.content.SharedPreferences prefs =
+                    getSharedPreferences(MainActivity.PREFS, MODE_PRIVATE);
             Builder b = new Builder();
-            b.setSession(getString(R.string.app_name));
+            String[] locs = getResources().getStringArray(R.array.vpn_locations);
+            int sIdx = prefs.getInt(MainActivity.KEY_SERVER, 0);
+            if (sIdx < 0 || sIdx >= locs.length) sIdx = 0;
+            b.setSession(locs[sIdx]);
             b.setMtu(1500);
             b.addAddress("10.8.0.2", 32);
             // DNS берётся из настроек (список «все DNS»); резерв — Cloudflare.
-            android.content.SharedPreferences prefs =
-                    getSharedPreferences(MainActivity.PREFS, MODE_PRIVATE);
             String[] dns = getResources().getStringArray(R.array.dns_values);
             int idx = prefs.getInt(MainActivity.KEY_DNS, 0);
             if (idx < 0 || idx >= dns.length) idx = 0;
