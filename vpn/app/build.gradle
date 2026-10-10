@@ -1,0 +1,31 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.okakvpn'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'app.okakvpn'
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Намеренно пусто: только платформенные API (VpnService, Activity), без AndroidX.
+}

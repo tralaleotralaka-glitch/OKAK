@@ -12,8 +12,80 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  apk:
-    name: Сборка APK
+  # ── Нативный VPN (основной релиз) ─────────────────────────────
+  vpn:
+    name: Сборка OKAK VPN (native)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Сборка APK (vpn/)
+        working-directory: vpn
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Проверить содержимое APK
+        id: vpnapk
+        working-directory: vpn
+        run: |
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          for entry in AndroidManifest.xml classes.dex resources.arsc res/layout/activity_main.xml; do
+            if unzip -l "$APK" | grep -q "$entry"; then
+              echo "ok   $entry"
+            else
+              echo "::error::в APK отсутствует $entry"
+              exit 1
+            fi
+          done
+          unzip -l "$APK" | grep -q "app/okakvpn" || true
+          SIZE=$(stat -c %s "$APK")
+          SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+          VERSION=$(grep -o "versionName '[^']*'" app/build.gradle | cut -d"'" -f2)
+          NAME="OKAK-VPN-${VERSION}-debug.apk"
+          cp "$APK" "$NAME"
+          {
+            echo "file=$NAME"
+            echo "sha256=$SHA"
+            echo "size=$SIZE"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::VPN APK собран: $NAME, $SIZE байт, sha256 $SHA"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OKAK-VPN-debug-apk
+          path: vpn/${{ steps.vpnapk.outputs.file }}
+
+      - name: Опубликовать VPN APK (основной релиз)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="apk-${GITHUB_REF_NAME//\//-}"
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" \
+            "vpn/${{ steps.vpnapk.outputs.file }}" \
+            --title "OKAK VPN — ${GITHUB_REF_NAME}" \
+            --notes "Нативный Android VPN (VpnService) с большой кнопкой включения.
+
+            - файл: ${{ steps.vpnapk.outputs.file }}
+            - размер: ${{ steps.vpnapk.outputs.size }} байт
+            - sha256: \`${{ steps.vpnapk.outputs.sha256 }}\`
+
+            Это каркас: VPN-интерфейс поднимается, но внешнего сервера нет, поэтому
+            трафик не пересылается (FORWARD_ALL=false). План до рабочего VPN — в vpn/README.md.
+            Подпись отладочная: разрешите «Установку из неизвестных источников»." \
+            --target "${GITHUB_SHA}"
+
+  # ── ProxyTG (Capacitor, отдельный тег) ────────────────────────
+  proxytg:
+    name: Сборка ProxyTG (web)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,31 +146,25 @@ jobs:
             echo "sha256=$SHA"
             echo "size=$SIZE"
           } >> "$GITHUB_OUTPUT"
-          echo "::notice::APK собран: $NAME, $SIZE байт, sha256 $SHA"
-          unzip -l "$APK" | tail -2
+          echo "::notice::ProxyTG APK собран: $NAME, $SIZE байт, sha256 $SHA"
 
       - uses: actions/upload-artifact@v4
         with:
           name: ProxyTG-debug-apk
           path: ${{ steps.apk.outputs.file }}
 
-      - name: Опубликовать APK в релизе
+      - name: Опубликовать ProxyTG APK (свой тег)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="apk-${GITHUB_REF_NAME//\//-}"
+          TAG="apk-proxytg-${GITHUB_REF_NAME//\//-}"
           gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" \
             "${{ steps.apk.outputs.file }}" \
             --title "ProxyTG APK — ${GITHUB_REF_NAME}" \
-            --notes "Собрано автоматически из ${GITHUB_SHA}.
+            --notes "Генератор MTProto-прокси с белыми списками (web на Capacitor).
 
             - файл: ${{ steps.apk.outputs.file }}
             - размер: ${{ steps.apk.outputs.size }} байт
-            - sha256: \`${{ steps.apk.outputs.sha256 }}\`
-
-            Внутри — веб-приложение ProxyTG (генератор MTProto-прокси и белые списки).
-            Подпись отладочная (debug keystore), при установке Android попросит
-            разрешить «Установку из неизвестных источников». Конфигурации прокси
-            хранятся в localStorage приложения и не покидают телефон." \
+            - sha256: \`${{ steps.apk.outputs.sha256 }}\`" \
             --target "${GITHUB_SHA}"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OKAK VPN</string>
+    <string name="status_off">Выключено</string>
+    <string name="status_on">Подключено</string>
+    <string name="status_connecting">Подключение…</string>
+    <string name="vpn_channel">VPN-сессия</string>
+    <string name="vpn_notification">OKAK VPN активен</string>
+</resources>

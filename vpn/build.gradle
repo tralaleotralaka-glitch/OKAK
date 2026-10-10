@@ -1,0 +1,4 @@
+// Каркас нативного VPN. Без внешних зависимостей — только AndroidX-free Java.
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+}
