@@ -14,7 +14,7 @@ concurrency:
 jobs:
   # ── Нативный VPN (основной релиз) ─────────────────────────────
   vpn:
-    name: Сборка OKAK VPN (native)
+    name: Сборка PROPYSK (native)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,18 +49,18 @@ jobs:
           SIZE=$(stat -c %s "$APK")
           SHA=$(sha256sum "$APK" | cut -d' ' -f1)
           VERSION=$(grep -o "versionName '[^']*'" app/build.gradle | cut -d"'" -f2)
-          NAME="OKAK-VPN-${VERSION}-debug.apk"
+          NAME="PROPYSK-${VERSION}-debug.apk"
           cp "$APK" "$NAME"
           {
             echo "file=$NAME"
             echo "sha256=$SHA"
             echo "size=$SIZE"
           } >> "$GITHUB_OUTPUT"
-          echo "::notice::VPN APK собран: $NAME, $SIZE байт, sha256 $SHA"
+          echo "::notice::PROPYSK APK собран: $NAME, $SIZE байт, sha256 $SHA"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: OKAK-VPN-debug-apk
+          name: PROPYSK-debug-apk
           path: vpn/${{ steps.vpnapk.outputs.file }}
 
       - name: Опубликовать VPN APK (основной релиз)
@@ -71,15 +71,17 @@ jobs:
           gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" \
             "vpn/${{ steps.vpnapk.outputs.file }}" \
-            --title "OKAK VPN — ${GITHUB_REF_NAME}" \
+            --title "PROPYSK — ${GITHUB_REF_NAME}" \
             --notes "Нативный Android VPN (VpnService) с большой кнопкой включения.
 
             - файл: ${{ steps.vpnapk.outputs.file }}
             - размер: ${{ steps.vpnapk.outputs.size }} байт
             - sha256: \`${{ steps.vpnapk.outputs.sha256 }}\`
 
+            Огромная кнопка включения, настройки со сменой темы и список DNS
+            (Cloudflare/Google/Quad9/AdGuard/Яндекс и др.) — DNS применяется в туннеле.
             Это каркас: VPN-интерфейс поднимается, но внешнего сервера нет, поэтому
-            трафик не пересылается (FORWARD_ALL=false). План до рабочего VPN — в vpn/README.md.
+            обход IP-блокировок не происходит (FORWARD_ALL=false). План — в vpn/README.md.
             Подпись отладочная: разрешите «Установку из неизвестных источников»." \
             --target "${GITHUB_SHA}"
 

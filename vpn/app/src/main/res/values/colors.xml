@@ -7,4 +7,10 @@
     <color name="accent">#2F7CF6</color>
     <color name="on">#22C55E</color>
     <color name="off">#334155</color>
+
+    <color name="bg_light">#F2F5FB</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="ink_light">#101828</color>
+    <color name="muted_light">#667085</color>
+    <color name="off_light">#CBD5E1</color>
 </resources>

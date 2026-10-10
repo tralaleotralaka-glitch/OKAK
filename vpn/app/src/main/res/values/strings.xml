@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OKAK VPN</string>
+    <string name="app_name">PROPYSK</string>
     <string name="status_off">Выключено</string>
     <string name="status_on">Подключено</string>
     <string name="status_connecting">Подключение…</string>
     <string name="vpn_channel">VPN-сессия</string>
-    <string name="vpn_notification">OKAK VPN активен</string>
+    <string name="vpn_notification">PROPYSK активен</string>
+    <string name="settings_title">Настройки</string>
+    <string name="theme_label">Тёмная тема</string>
+    <string name="dns_label">DNS</string>
 </resources>

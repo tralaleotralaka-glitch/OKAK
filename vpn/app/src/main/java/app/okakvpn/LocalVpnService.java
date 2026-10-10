@@ -64,7 +64,14 @@ public class LocalVpnService extends VpnService {
             b.setSession(getString(R.string.app_name));
             b.setMtu(1500);
             b.addAddress("10.8.0.2", 32);
-            b.addDnsServer("1.1.1.1");
+            // DNS берётся из настроек (список «все DNS»); резерв — Cloudflare.
+            android.content.SharedPreferences prefs =
+                    getSharedPreferences(MainActivity.PREFS, MODE_PRIVATE);
+            String[] dns = getResources().getStringArray(R.array.dns_values);
+            int idx = prefs.getInt(MainActivity.KEY_DNS, 0);
+            if (idx < 0 || idx >= dns.length) idx = 0;
+            b.addDnsServer(dns[idx]);
+            if (!"1.1.1.1".equals(dns[idx])) b.addDnsServer("1.1.1.1");
             if (FORWARD_ALL) {
                 b.addRoute("0.0.0.0", 0); // весь трафик — только когда есть апстрим
             }

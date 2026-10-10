@@ -3,26 +3,39 @@ package app.okakvpn;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.Locale;
 
 public class MainActivity extends Activity {
 
+    static final String PREFS = "propysk";
+    static final String KEY_THEME = "dark";
+    static final String KEY_DNS = "dns_index";
     private static final int REQ_PREPARE = 100;
 
     private ImageButton power;
     private TextView status;
     private TextView timer;
     private TextView bytes;
+    private View card;
+    private Switch themeSwitch;
+    private Spinner dnsSpinner;
 
     private boolean connected;
+    private boolean isDark;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable ticker = new Runnable() {
         @Override
@@ -37,12 +50,46 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        isDark = prefs.getBoolean(KEY_THEME, true);
+        setTheme(isDark ? R.style.AppTheme : R.style.AppTheme_Light);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         power = findViewById(R.id.power);
         status = findViewById(R.id.status);
         timer = findViewById(R.id.timer);
         bytes = findViewById(R.id.bytes);
+        card = findViewById(R.id.card);
+        themeSwitch = findViewById(R.id.theme);
+        dnsSpinner = findViewById(R.id.dns);
+
+        card.getBackground().setTint(getColor(isDark ? R.color.surface : R.color.surface_light));
+
+        themeSwitch.setChecked(isDark);
+        themeSwitch.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked != isDark) {
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_THEME, checked).apply();
+                recreate();
+            }
+        });
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this, R.array.dns_entries, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dnsSpinner.setAdapter(adapter);
+        int savedDns = prefs.getInt(KEY_DNS, 0);
+        dnsSpinner.setSelection(savedDns);
+        dnsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putInt(KEY_DNS, pos).apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> p) {
+            }
+        });
 
         LocalVpnService.listener = new LocalVpnService.StatusListener() {
             @Override
@@ -98,8 +145,8 @@ public class MainActivity extends Activity {
     private void setConnected(boolean on) {
         connected = on;
         status.setText(on ? R.string.status_on : R.string.status_off);
-        status.setTextColor(getColor(on ? R.color.on : R.color.muted));
-        power.getBackground().setTint(getColor(on ? R.color.on : R.color.off));
+        status.setTextColor(getColor(on ? R.color.on : (isDark ? R.color.muted : R.color.muted_light)));
+        power.getBackground().setTint(getColor(on ? R.color.on : (isDark ? R.color.off : R.color.off_light)));
         if (on) {
             timer.setText("00:00");
             handler.post(ticker);
