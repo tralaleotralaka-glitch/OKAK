@@ -1,4 +1,4 @@
-# PROPYSK — нативный Android‑клиент (VPN‑каркас)
+# Obxod — нативный Android‑клиент (VPN‑каркас)
 
 Реальный системный VPN на `android.net.VpnService`, без WebView, без AndroidX,
 без ссылок и QR. Интерфейс — **огромная круглая кнопка включения**, статус,
