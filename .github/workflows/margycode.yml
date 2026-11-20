@@ -1,0 +1,40 @@
+name: MargyCode Android ARMv7
+on:
+  push:
+    paths: ['.github/workflows/margycode.yml']
+  workflow_dispatch:
+permissions: {}
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Fetch MargyCode
+        run: |
+          git clone --depth=1 --recurse-submodules https://git.narez.xyz/narezany/MargyCode.git source
+          git -C source rev-parse HEAD
+          ls -la source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build Android debug APK
+        run: |
+          wrapper=$(find source -type f -name gradlew -print -quit)
+          if [ -z "$wrapper" ]; then echo 'No Gradle wrapper found; inspect the upstream project build instructions.' >&2; exit 1; fi
+          cd "$(dirname "$wrapper")"
+          bash gradlew assembleDebug -Pandroid.injected.build.abi=armeabi-v7a
+      - name: Collect APKs compatible with ARMv7
+        run: |
+          mkdir apk
+          while IFS= read -r -d '' file; do
+            entries=$(unzip -Z1 "$file")
+            if ! grep -Eq '^lib/[^/]+/[^/]+\.so$' <<< "$entries" || grep -Eq '^lib/armeabi-v7a/[^/]+\.so$' <<< "$entries"; then
+              cp --parents "$file" apk/
+            fi
+          done < <(find source -path '*/build/outputs/apk/*' -iname '*debug*.apk' -print0)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MargyCode-ARMv7-debug
+          path: apk/**/*.apk
+          if-no-files-found: error
