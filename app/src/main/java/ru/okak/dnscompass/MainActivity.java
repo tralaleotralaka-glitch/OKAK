@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
 
         testButton = new Button(this);
         testButton.setText("Проверить DNS-серверы");
-        testButton.setTextAllCaps(false);
+        testButton.setTransformationMethod(null);
         testButton.setTextSize(15);
         testButton.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         testButton.setTextColor(BG);
