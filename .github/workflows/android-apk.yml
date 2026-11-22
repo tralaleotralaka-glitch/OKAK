@@ -35,9 +35,10 @@ jobs:
           result=$?
           if [ "$result" -ne 0 ]; then
             tail -n 80 build.log
+            grep -E 'FAILURE:|What went wrong|^> |^e: |error:|Execution failed|Could not .*' build.log | tail -n 20 > build-error-summary.txt || true
             python3 - <<'PY'
           from pathlib import Path
-          text = Path('build.log').read_text(errors='replace')[-7000:]
+          text = Path('build-error-summary.txt').read_text(errors='replace')
           text = text.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
           print(f'::error title=Gradle build failure::{text}')
           PY
