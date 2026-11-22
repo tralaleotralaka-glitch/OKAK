@@ -28,7 +28,21 @@ jobs:
       - name: Install Android platform
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+        shell: bash
+        run: |
+          set +e
+          gradle --no-daemon assembleDebug --stacktrace --info > build.log 2>&1
+          result=$?
+          if [ "$result" -ne 0 ]; then
+            tail -n 80 build.log
+            python3 - <<'PY'
+          from pathlib import Path
+          text = Path('build.log').read_text(errors='replace')[-7000:]
+          text = text.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+          print(f'::error title=Gradle build failure::{text}')
+          PY
+            exit "$result"
+          fi
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
