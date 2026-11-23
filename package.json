@@ -1,0 +1,14 @@
+{
+  "name": "vox-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VOX AI — голосовой ИИ-ассистент с настраиваемым API (OpenAI-совместимые провайдеры)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  }
+}
